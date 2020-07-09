@@ -2,21 +2,23 @@
 #define DOUGHBOY_H
 
 #include <Arduino.h>
-#include "DoughNetwork.h"
-#include "DoughMQTT.h"
-#include "DoughSensors.h"
-#include "DoughData.h"
-#include "DoughButton.h"
-#include "DoughUI.h"
+#include "Network/DoughWiFi.h"
+#include "Network/DoughMQTT.h"
+#include "Sensors/DoughSensors.h"
+#include "Data/DataController.h"
+#include "UI/DoughButton.h"
+#include "UI/DoughUI.h"
 #include "config.h"
 
-typedef enum {
+typedef enum
+{
     CONNECTING_WIFI,
     CONNECTING_MQTT,
     CONNECTED
 } DoughBoyConnectionState;
 
-typedef enum {
+typedef enum
+{
     CONFIGURING,
     MEASURING,
     PAUSED,

@@ -26,7 +26,6 @@
 #define HCSR04_INIT_HUMIDITY 50.000
 
 #include <Arduino.h>
-#include "DoughUI.h"
 #include "config.h"
 
 class HCSR04 {

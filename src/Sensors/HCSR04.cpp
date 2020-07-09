@@ -1,4 +1,4 @@
-#include "HCSR04.h"
+#include "Sensors/HCSR04.h"
 
 HCSR04::HCSR04(int triggerPin, int echoPin) {
     _triggerPin = triggerPin;
@@ -33,7 +33,6 @@ int HCSR04::readDistance() {
         _sortSamples();
         return _computeAverage();
     }
-    DoughUI::Instance()->log("HCSR04", "s", "ERROR - Not enough samples for reading distance, returning NAN");
     return -1;
 }
 

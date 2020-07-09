@@ -18,11 +18,13 @@
  *   // Linking the function ot button interrupts.
  *   myButton.onInterrupt(myButtonISR);
  */
-DoughButton::DoughButton(int pin) {
+DoughButton::DoughButton(int pin)
+{
     _pin = pin;
 }
 
-void DoughButton::setup() {
+void DoughButton::setup()
+{
     pinMode(_pin, INPUT_PULLUP);
 }
 
@@ -31,7 +33,8 @@ void DoughButton::setup() {
  * interrupts. The provided isr should relay interrupts to the
  * handleButtonState() method of this class (see constructor docs).
  */
-void DoughButton::onInterrupt(DoughButtonHandler isr) {
+void DoughButton::onInterrupt(DoughButtonHandler isr)
+{
     attachInterrupt(digitalPinToInterrupt(_pin), isr, CHANGE);
 }
 
@@ -40,86 +43,111 @@ void DoughButton::onInterrupt(DoughButtonHandler isr) {
  * When specific handlers for long and/or short presses are
  * configured as well, those have precedence over this one.
  */
-void DoughButton::onPress(DoughButtonHandler handler) {
+void DoughButton::onPress(DoughButtonHandler handler)
+{
     _pressHandler = handler;
 }
 
 /**
  * Assign an event handler for long button presses.
  */
-void DoughButton::onLongPress(DoughButtonHandler handler) {
+void DoughButton::onLongPress(DoughButtonHandler handler)
+{
     _longPressHandler = handler;
 }
 
 /**
  * Assign an event handler for short button presses.
  */
-void DoughButton::onShortPress(DoughButtonHandler handler) {
+void DoughButton::onShortPress(DoughButtonHandler handler)
+{
     _shortPressHandler = handler;
 }
 
-void DoughButton::loop() {
+void DoughButton::loop()
+{
     handleButtonState();
-    if (_state == UP_AFTER_SHORT) {
-        if (_shortPressHandler != nullptr) {
+    if (_state == UP_AFTER_SHORT)
+    {
+        if (_shortPressHandler != nullptr)
+        {
             _shortPressHandler();
         }
-        else if (_pressHandler != nullptr) {
+        else if (_pressHandler != nullptr)
+        {
             _pressHandler();
         }
         _state = READY_FOR_NEXT_PRESS;
     }
-    else if (_state == DOWN_LONG || _state == UP_AFTER_LONG) {
-        if (_longPressHandler != nullptr) {
+    else if (_state == DOWN_LONG || _state == UP_AFTER_LONG)
+    {
+        if (_longPressHandler != nullptr)
+        {
             _longPressHandler();
         }
-        else if (_pressHandler != nullptr) {
+        else if (_pressHandler != nullptr)
+        {
             _pressHandler();
         }
         _state = READY_FOR_NEXT_PRESS;
     }
-    else if (_state == DOWN && _shortPressHandler == nullptr && _longPressHandler == nullptr) {
-        if (_pressHandler != nullptr) {
+    else if (_state == DOWN && _shortPressHandler == nullptr && _longPressHandler == nullptr)
+    {
+        if (_pressHandler != nullptr)
+        {
             _pressHandler();
-        } 
+        }
         _state = READY_FOR_NEXT_PRESS;
     }
 }
 
-void DoughButton::clearEvents() {
+void DoughButton::clearEvents()
+{
     _state = READY_FOR_NEXT_PRESS;
 }
 
-void DoughButton::handleButtonState() {
+void DoughButton::handleButtonState()
+{
     bool buttonIsDown = digitalRead(_pin) == 0;
     bool buttonIsUp = !buttonIsDown;
 
     // When the button state has changed since the last time, then
     // start the debounce timer.
-    if (buttonIsDown != _debounceState) {
+    if (buttonIsDown != _debounceState)
+    {
         _debounceTimer = millis();
         _debounceState = buttonIsDown;
     }
 
     unsigned long interval = (millis() - _debounceTimer);
-    
+
     // Only when the last state change has been stable for longer than the
     // configured debounce delay, then we accept the current state as
     // a stabilized button state.
-    if (interval < BUTTON_DEBOUNCE_DELAY) {
+    if (interval < BUTTON_DEBOUNCE_DELAY)
+    {
         return;
     }
 
     // Handle button state changes.
-    if (_state == READY_FOR_NEXT_PRESS && buttonIsUp) {
+    if (_state == READY_FOR_NEXT_PRESS && buttonIsUp)
+    {
         _state = UP;
-    } else if (_state == UP && buttonIsDown) {
+    }
+    else if (_state == UP && buttonIsDown)
+    {
         _state = DOWN;
-    } else if (_state == DOWN && buttonIsDown && interval > BUTTON_LONGPRESS_DELAY) {
+    }
+    else if (_state == DOWN && buttonIsDown && interval > BUTTON_LONGPRESS_DELAY)
+    {
         _state = DOWN_LONG;
-    } else if (_state == DOWN && buttonIsUp) {
+    }
+    else if (_state == DOWN && buttonIsUp)
+    {
         _state = UP_AFTER_SHORT;
-    } else if (_state == DOWN_LONG && buttonIsUp) {
+    }
+    else if (_state == DOWN_LONG && buttonIsUp)
+    {
         _state = UP_AFTER_LONG;
     }
 }

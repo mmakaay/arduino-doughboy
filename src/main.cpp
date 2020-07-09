@@ -1,4 +1,4 @@
-#include "DoughBoy.h"
+#include "main.h"
 
 // TOOD: implement the calibration logic
 // TODO: use different timings for temperature, humidity and distance measurements. Temp/Humidity together takes about 500ms, which slows down stuff.
@@ -8,11 +8,12 @@
 
 DoughBoyState state = CONFIGURING;
 
-void setup() {
+void setup()
+{
     DoughSensors::Instance()->setup();
-    DoughNetwork::Instance()->setup();
+    DoughWiFi::Instance()->setup();
     DoughMQTT::Instance()->setup();
-    DoughData::Instance()->setup();
+    DataController::Instance()->setup();
     auto ui = DoughUI::Instance();
     ui->setup();
     ui->onoffButton.onPress(handleOnoffButtonPress);
@@ -20,34 +21,41 @@ void setup() {
     ui->log("MAIN", "s", "Initialization completed, starting device");
 }
 
-void loop() {
+void loop()
+{
     auto ui = DoughUI::Instance();
-    auto data = DoughData::Instance();
+    auto data = DataController::Instance();
     auto mqtt = DoughMQTT::Instance();
-    
+
     ui->processButtonEvents();
 
-    if (!setupNetworkConnection()) {
+    if (!setupNetworkConnection())
+    {
         return;
     }
 
     mqtt->procesIncomingsMessages();
-    
-    if (state == CONFIGURING && data->isConfigured()) {
+
+    if (state == CONFIGURING && data->isConfigured())
+    {
         setStateToMeasuring();
     }
-    else if (state == MEASURING && !data->isConfigured()) {
+    else if (state == MEASURING && !data->isConfigured())
+    {
         setStateToConfiguring();
     }
-    else if (state == MEASURING) {
-        DoughData::Instance()->loop();
+    else if (state == MEASURING)
+    {
+        DataController::Instance()->loop();
     }
-    else if (state == CALIBRATING) {
+    else if (state == CALIBRATING)
+    {
         delay(3000);
         setStateToPaused();
     }
-    else if (state == PAUSED) {
-        DoughData::Instance()->clearHistory();
+    else if (state == PAUSED)
+    {
+        DataController::Instance()->clearHistory();
     }
 }
 
@@ -56,18 +64,23 @@ void loop() {
  * If not, then try to setup the connection.
  * Returns true if the connection was established, false otherwise.
  */
-bool setupNetworkConnection() {
+bool setupNetworkConnection()
+{
     static auto connectionState = CONNECTING_WIFI;
-    
+
     auto ui = DoughUI::Instance();
-    auto network = DoughNetwork::Instance();
+    auto network = DoughWiFi::Instance();
     auto mqtt = DoughMQTT::Instance();
-    
-    if (!network->isConnected()) {
-        if (connectionState == CONNECTED) {
+
+    if (!network->isConnected())
+    {
+        if (connectionState == CONNECTED)
+        {
             ui->log("MAIN", "s", "ERROR - Connection to WiFi network lost! Reconnecting ...");
-        } else {
-            ui->log("MAIN", "s", "Connecting to the WiFi network ...");      
+        }
+        else
+        {
+            ui->log("MAIN", "s", "Connecting to the WiFi network ...");
         }
         connectionState = CONNECTING_WIFI;
         ui->led1.blink()->slow();
@@ -75,20 +88,26 @@ bool setupNetworkConnection() {
         ui->led3.off();
         network->connect();
     }
-    if (network->isConnected() && !mqtt->isConnected()) {
-        if (connectionState == CONNECTED) {
+    if (network->isConnected() && !mqtt->isConnected())
+    {
+        if (connectionState == CONNECTED)
+        {
             ui->log("MAIN", "s", "ERROR - Connection to the MQTT broker lost! Reconnecting ...");
-        } else {
-            ui->log("MAIN", "s", "Connecting to the MQTT broker ...");          
+        }
+        else
+        {
+            ui->log("MAIN", "s", "Connecting to the MQTT broker ...");
         }
         connectionState = CONNECTING_MQTT;
         ui->led1.blink()->fast();
         ui->led2.off();
         ui->led3.off();
         mqtt->connect();
-    }    
-    if (network->isConnected() && mqtt->isConnected()) {
-        if (connectionState != CONNECTED) {
+    }
+    if (network->isConnected() && mqtt->isConnected())
+    {
+        if (connectionState != CONNECTED)
+        {
             ui->log("MAIN", "s", "Connection to MQTT broker established");
             ui->led1.on();
             ui->led2.off();
@@ -102,20 +121,25 @@ bool setupNetworkConnection() {
     return connectionState == CONNECTED;
 }
 
-void handleOnoffButtonPress() {
-    if (state == MEASURING) {
+void handleOnoffButtonPress()
+{
+    if (state == MEASURING)
+    {
         setStateToPaused();
     }
-    else if (state == PAUSED) {
+    else if (state == PAUSED)
+    {
         setStateToMeasuring();
     }
 }
 
-void handleSetupButtonPress() {
+void handleSetupButtonPress()
+{
     setStateToCalibrating();
 }
 
-void setStateToConfiguring() {
+void setStateToConfiguring()
+{
     auto ui = DoughUI::Instance();
     ui->log("MAIN", "s", "Waiting for configuration ...");
     state = CONFIGURING;
@@ -125,7 +149,8 @@ void setStateToConfiguring() {
     DoughMQTT::Instance()->publish("state", "configuring");
 }
 
-void setStateToMeasuring() {
+void setStateToMeasuring()
+{
     auto ui = DoughUI::Instance();
     ui->log("MAIN", "s", "Starting measurements");
     state = MEASURING;
@@ -135,22 +160,24 @@ void setStateToMeasuring() {
     DoughMQTT::Instance()->publish("state", "measuring");
 }
 
-void setStateToPaused() {
-    auto ui = DoughUI::Instance();  
+void setStateToPaused()
+{
+    auto ui = DoughUI::Instance();
     ui->log("MAIN", "s", "Pausing measurements");
     state = PAUSED;
     ui->led1.on();
     ui->led2.on();
     ui->led3.pulse();
-    DoughMQTT::Instance()->publish("state", "paused");  
+    DoughMQTT::Instance()->publish("state", "paused");
 }
 
-void setStateToCalibrating() {
+void setStateToCalibrating()
+{
     auto ui = DoughUI::Instance();
     ui->log("MAIN", "s", "Requested device calibration");
     state = CALIBRATING;
     ui->led1.on();
     ui->led2.blink()->slow();
     ui->led3.off();
-    DoughMQTT::Instance()->publish("state", "calibrating");  
+    DoughMQTT::Instance()->publish("state", "calibrating");
 }
