@@ -18,6 +18,15 @@ typedef enum
 
 typedef void (*DoughButtonHandler)();
 
+/**
+ * This class provides a simple interface for handling button presses.
+ * Only a few events are supported:
+ * 
+ * - short press: a button up event, will not trigger after long press
+ * - long press: when a button is held down for a while
+ * - press: this is a button down event, which will only trigger if
+ *   short press and long press events aren't used
+ */
 class DoughButton
 {
 public:

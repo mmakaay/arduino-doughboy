@@ -16,8 +16,7 @@ DoughSensors* DoughSensors::Instance() {
     return DoughSensors::_instance;
 }
 
-DoughSensors::DoughSensors() {
-    _ui = DoughUI::Instance();
+DoughSensors::DoughSensors() : _logger("SENSORS") {
     _dht = new DHT(DHT11_DATA_PIN, DHT11);
     _hcsr04 = new HCSR04(HCSR04_TRIG_PIN, HCSR04_ECHO_PIN);
 }
@@ -35,38 +34,38 @@ void DoughSensors::setup() {
 // loop
 // ----------------------------------------------------------------------
 
-Measurement* DoughSensors::readTemperature() {
+Measurement DoughSensors::readTemperature() {
     float t = _dht->readTemperature();
     if (isnan(t)) {
-        _ui->log("SENSORS", "s", "ERROR - Temperature measurement failed");
+        _logger.log("s", "ERROR - Temperature measurement failed");
         return Measurement::Failed();
     } else {
+        _logger.log("sis", "Temperature = ", int(t), "°C ");
         _hcsr04->setTemperature(int(t));
-        auto m = new Measurement(true, int(t));
-        _ui->log("SENSORS", "sisi", "Temperature = ", int(t), "°C ", m->value);
+        auto m = Measurement::Value(int(t));
         return m;
     }
 }
 
-Measurement* DoughSensors::readHumidity() {
+Measurement DoughSensors::readHumidity() {
     int h = _dht->readHumidity();
     if (h == 0) {
-        _ui->log("SENSORS", "s", "ERROR - Humidity measurement failed");
+        _logger.log("s", "ERROR - Humidity measurement failed");
         return Measurement::Failed();
     } else {
+        _logger.log("sis", "Humidity = ", h, "%");
         _hcsr04->setHumidity(h);
-        _ui->log("SENSORS", "sis", "Humidity = ", h, "%");
-        return Measurement::Ok(h);
+        return Measurement::Value(h);
     }
 }
 
-Measurement* DoughSensors::readDistance() {
+Measurement DoughSensors::readDistance() {
     int d = _hcsr04->readDistance();
     if (d == -1) {
-        _ui->log("SENSORS", "s", "ERROR - Distance measurement failed");    
+        _logger.log("s", "ERROR - Distance measurement failed");    
         return Measurement::Failed();
     } else {
-        _ui->log("SENSORS", "sis", "Distance = ", d, "mm"); 
-         return Measurement::Ok(d);
+        _logger.log("sis", "Distance = ", d, "mm"); 
+         return Measurement::Value(d);
     }     
 }

@@ -1,5 +1,4 @@
 #include "Data/DataController.h"
-#include "Data/Measurements.h"
 
 // ----------------------------------------------------------------------
 // Constructor
@@ -21,7 +20,13 @@ DataController *DataController::Instance()
 
 DataController::DataController() : _temperatureMeasurements(TEMPERATURE_AVG_LOOKBACK),
                                    _humidityMeasurements(HUMIDITY_AVG_LOOKBACK),
-                                   _distanceMeasurements(DISTANCE_AVG_LOOKBACK) {}
+                                   _distanceMeasurements(DISTANCE_AVG_LOOKBACK),
+                                   _logger("DATA")
+{
+    _ui = DoughUI::Instance();
+    _sensors = DoughSensors::Instance();
+    _mqtt = DoughMQTT::Instance();
+}
 
 // ----------------------------------------------------------------------
 // Setup
@@ -50,14 +55,10 @@ void DataController::handleMqttMessage(String &key, String &payload)
     }
     else
     {
-        DoughUI::Instance()->log("DATA", "sS", "ERROR - Unhandled MQTT message, key = ", key);
+        DataController::Instance()->_logger.log("sS", "ERROR - Unhandled MQTT message, key = ", key);
     }
 }
 
-/**
- * Check if configuration has been taken care of. Some configuration is
- * required before measurements can be processed.
- */
 bool DataController::isConfigured()
 {
     return _containerHeightSet;
@@ -73,21 +74,19 @@ void DataController::setContainerHeight(int height)
     _containerHeightSet = false;
     if (height <= HCSR04_MIN_MM)
     {
-        DoughUI::Instance()->log("DATA", "sisis",
-                                 "ERROR - Container height ", height,
-                                 "mm is less than the minimum measuring distance of ",
-                                 HCSR04_MIN_MM, "mm");
+        _logger.log("sisis", "ERROR - Container height ", height,
+            "mm is less than the minimum measuring distance of ",
+            HCSR04_MIN_MM, "mm");
         return;
     }
     if (height >= HCSR04_MAX_MM)
     {
-        DoughUI::Instance()->log("DATA", "sisis",
-                                 "ERROR - Container height ", height,
-                                 "mm is more than the maximum measuring distance of ",
-                                 HCSR04_MAX_MM, "mm");
+       _logger.log("sisis", "ERROR - Container height ", height,
+            "mm is more than the maximum measuring distance of ",
+            HCSR04_MAX_MM, "mm");
         return;
     }
-    DoughUI::Instance()->log("DATA", "sis", "Set container height to ", height, "mm");
+    _logger.log("sis", "Set container height to ", height, "mm");
     _containerHeight = height;
     _containerHeightSet = true;
 }
@@ -122,38 +121,36 @@ void DataController::_sample()
 
     if (tick)
     {
-        DoughUI *ui = DoughUI::Instance();
         _lastSample = now;
-        DoughSensors *sensors = DoughSensors::Instance();
 
         // Quickly dip the LED to indicate that a measurement is started.
         // This is done synchroneously, because we suspend the timer interrupts
         // in the upcoming code.
-        ui->led3.off();
+        _ui->led3.off();
         delay(50);
-        ui->led3.on();
+        _ui->led3.on();
 
         // Suspend the UI timer interrupts, to not let these interfere
         // with the sensor measurements.
-        ui->suspend();
+        _ui->suspend();
 
         // Take a sample.
         switch (_sampleType)
         {
         case SAMPLE_TEMPERATURE:
-            _temperatureMeasurements.add(sensors->readTemperature());
+            _temperatureMeasurements.add(_sensors->readTemperature());
             _sampleType = SAMPLE_HUMIDITY;
             break;
         case SAMPLE_HUMIDITY:
-            _humidityMeasurements.add(sensors->readHumidity());
+            _humidityMeasurements.add(_sensors->readHumidity());
             _sampleType = SAMPLE_DISTANCE;
             break;
         case SAMPLE_DISTANCE:
-            _distanceMeasurements.add(sensors->readDistance());
+            _distanceMeasurements.add(_sensors->readDistance());
             break;
         }
 
-        ui->resume();
+        _ui->resume();
 
         _sampleCounter++;
         if (_sampleCounter == SAMPLE_CYCLE_LENGTH)
@@ -166,77 +163,17 @@ void DataController::_sample()
 
 void DataController::_publish()
 {
-    static unsigned long lastSample = 0;
-    if (lastSample == 0 || millis() - lastSample > PUBLISH_INTERVAL)
+    if (_lastPublish == 0 || millis() - _lastPublish > PUBLISH_INTERVAL)
     {
-        lastSample = millis();
+        _lastPublish = millis();
 
-        DoughUI *ui = DoughUI::Instance();
-        DoughMQTT *mqtt = DoughMQTT::Instance();
+        _mqtt->publish("temperature", _temperatureMeasurements.getLast());
+        _mqtt->publish("temperature/average", _temperatureMeasurements.getAverage());
+        _mqtt->publish("humidity", _humidityMeasurements.getLast());
+        _mqtt->publish("humidity/average", _humidityMeasurements.getAverage());
+        _mqtt->publish("distance", _distanceMeasurements.getLast());
+        _mqtt->publish("distance/average", _distanceMeasurements.getAverage());
 
-        ui->log("DATA", "s", "Publish temperature");
-        auto m = _temperatureMeasurements.getLast();
-        if (m->ok)
-        {
-            mqtt->publish("temperature", m->value);
-        }
-        else
-        {
-            mqtt->publish("temperature", "null");
-        }
-
-        ui->log("DATA", "s", "Publish temperature average");
-        m = _temperatureMeasurements.getAverage();
-        if (m->ok)
-        {
-            mqtt->publish("temperature/average", m->value);
-        }
-        else
-        {
-            mqtt->publish("temperature/average", "null");
-        }
-
-        ui->log("DATA", "s", "Publish humidity");
-        m = _humidityMeasurements.getLast();
-        if (m->ok)
-        {
-            mqtt->publish("humidity", m->value);
-        }
-        else
-        {
-            mqtt->publish("humidity", "null");
-        }
-
-        m = _humidityMeasurements.getAverage();
-        if (m->ok)
-        {
-            mqtt->publish("humidity/average", m->value);
-        }
-        else
-        {
-            mqtt->publish("humidity/average", "null");
-        }
-
-        m = _distanceMeasurements.getLast();
-        if (m->ok)
-        {
-            mqtt->publish("distance", m->value);
-        }
-        else
-        {
-            mqtt->publish("distance", "null");
-        }
-
-        m = _distanceMeasurements.getAverage();
-        if (m->ok)
-        {
-            mqtt->publish("distance/average", m->value);
-        }
-        else
-        {
-            mqtt->publish("distance/average", "null");
-        }
-
-        ui->led1.dip()->fast();
+        _ui->led1.dip()->fast();
     }
 }

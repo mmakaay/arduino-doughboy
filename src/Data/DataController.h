@@ -27,6 +27,7 @@
 #include "Network/DoughWiFi.h"
 #include "Network/DoughMQTT.h"
 #include "UI/DoughUI.h"
+#include "UI/DoughLogger.h"
 
 typedef enum
 {
@@ -36,36 +37,40 @@ typedef enum
 } DoughSampleType;
 
 /**
- * The DoughData class is responsible for holding the device configuration,
- * collecting measurements from sensors, gathering the statistics on these data,
- * and publishing results to the MQTT broker.
+ * This class is responsible for handling all things "data".
+ * It holds the device configuration, collects measurements from sensors,
+ * gathers statistics on these data, and publishing results to the MQTT broker.
  */
 class DataController
 {
 public:
-    static DataController *Instance();
+    static DataController* Instance();
     void setup();
     void loop();
     void clearHistory();
     void setContainerHeight(int height);
-    bool isConfigured();
-    static void handleMqttConnect(DoughMQTT *mqtt);
+    bool isConfigured();    
+    static void handleMqttConnect(DoughMQTT* mqtt);
     static void handleMqttMessage(String &key, String &value);
 
 private:
     DataController();
-    static DataController *_instance;
-    DoughSensors *_sensors;
+    static DataController* _instance;
+    Measurements _temperatureMeasurements;
+    Measurements _humidityMeasurements;
+    Measurements _distanceMeasurements;
+    DoughLogger _logger;
+    DoughUI* _ui;
+    DoughSensors* _sensors;
+    DoughMQTT* _mqtt;
     unsigned long _lastSample = 0;
+    unsigned long _lastPublish = 0;
     DoughSampleType _sampleType = SAMPLE_TEMPERATURE;
     int _sampleCounter = 0;
     int _containerHeight;
     bool _containerHeightSet;
     void _sample();
     void _publish();
-    Measurements _temperatureMeasurements;
-    Measurements _humidityMeasurements;
-    Measurements _distanceMeasurements;
 };
 
 #endif

@@ -28,6 +28,9 @@
 #include <Arduino.h>
 #include "config.h"
 
+/**
+ * This class is used to get a distance reading from an HCSR04 sensor.
+ */
 class HCSR04 {
     public:
         HCSR04(int triggerPin, int echoPin);

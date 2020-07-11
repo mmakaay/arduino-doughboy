@@ -19,6 +19,10 @@ typedef enum
     PULSE
 } DoughLEDState;
 
+/**
+ * This class provides a set of basic LED lighting patterns, which can
+ * be used in an async way.
+ */
 class DoughLED
 {
 public:

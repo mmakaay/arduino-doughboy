@@ -7,6 +7,7 @@
 // TODO: use longer term averages for data
 
 DoughBoyState state = CONFIGURING;
+auto logger = DoughLogger("MAIN");
 
 void setup()
 {
@@ -18,7 +19,7 @@ void setup()
     ui->setup();
     ui->onoffButton.onPress(handleOnoffButtonPress);
     ui->setupButton.onPress(handleSetupButtonPress);
-    ui->log("MAIN", "s", "Initialization completed, starting device");
+    logger.log("s", "Initialization completed, starting device");
 }
 
 void loop()
@@ -76,11 +77,11 @@ bool setupNetworkConnection()
     {
         if (connectionState == CONNECTED)
         {
-            ui->log("MAIN", "s", "ERROR - Connection to WiFi network lost! Reconnecting ...");
+            logger.log("s", "ERROR - Connection to WiFi network lost! Reconnecting ...");
         }
         else
         {
-            ui->log("MAIN", "s", "Connecting to the WiFi network ...");
+            logger.log("s", "Connecting to the WiFi network ...");
         }
         connectionState = CONNECTING_WIFI;
         ui->led1.blink()->slow();
@@ -92,11 +93,11 @@ bool setupNetworkConnection()
     {
         if (connectionState == CONNECTED)
         {
-            ui->log("MAIN", "s", "ERROR - Connection to the MQTT broker lost! Reconnecting ...");
+            logger.log("s", "ERROR - Connection to the MQTT broker lost! Reconnecting ...");
         }
         else
         {
-            ui->log("MAIN", "s", "Connecting to the MQTT broker ...");
+            logger.log("s", "Connecting to the MQTT broker ...");
         }
         connectionState = CONNECTING_MQTT;
         ui->led1.blink()->fast();
@@ -108,7 +109,7 @@ bool setupNetworkConnection()
     {
         if (connectionState != CONNECTED)
         {
-            ui->log("MAIN", "s", "Connection to MQTT broker established");
+            logger.log("s", "Connection to MQTT broker established");
             ui->led1.on();
             ui->led2.off();
             ui->led3.off();
@@ -141,7 +142,7 @@ void handleSetupButtonPress()
 void setStateToConfiguring()
 {
     auto ui = DoughUI::Instance();
-    ui->log("MAIN", "s", "Waiting for configuration ...");
+    logger.log("s", "Waiting for configuration ...");
     state = CONFIGURING;
     ui->led1.on();
     ui->led2.blink()->fast();
@@ -152,7 +153,7 @@ void setStateToConfiguring()
 void setStateToMeasuring()
 {
     auto ui = DoughUI::Instance();
-    ui->log("MAIN", "s", "Starting measurements");
+    logger.log("s", "Starting measurements");
     state = MEASURING;
     ui->led1.on();
     ui->led2.on();
@@ -163,7 +164,7 @@ void setStateToMeasuring()
 void setStateToPaused()
 {
     auto ui = DoughUI::Instance();
-    ui->log("MAIN", "s", "Pausing measurements");
+    logger.log("s", "Pausing measurements");
     state = PAUSED;
     ui->led1.on();
     ui->led2.on();
@@ -174,7 +175,7 @@ void setStateToPaused()
 void setStateToCalibrating()
 {
     auto ui = DoughUI::Instance();
-    ui->log("MAIN", "s", "Requested device calibration");
+    logger.log("s", "Requested device calibration");
     state = CALIBRATING;
     ui->led1.on();
     ui->led2.blink()->slow();

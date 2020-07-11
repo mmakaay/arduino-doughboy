@@ -4,12 +4,12 @@
 // Constructor
 // ----------------------------------------------------------------------
 
-DoughMQTT *DoughMQTT::_instance = nullptr;
+DoughMQTT* DoughMQTT::_instance = nullptr;
 
 /**
  * Fetch the DoughMQTT singleton.
  */
-DoughMQTT *DoughMQTT::Instance()
+DoughMQTT* DoughMQTT::Instance()
 {
     if (DoughMQTT::_instance == nullptr)
     {
@@ -18,10 +18,7 @@ DoughMQTT *DoughMQTT::Instance()
     return DoughMQTT::_instance;
 }
 
-DoughMQTT::DoughMQTT()
-{
-    _ui = DoughUI::Instance();
-}
+DoughMQTT::DoughMQTT() : _logger("MQTT") { }
 
 // ----------------------------------------------------------------------
 // Setup
@@ -29,14 +26,14 @@ DoughMQTT::DoughMQTT()
 
 void DoughMQTT::setup()
 {
-    DoughWiFi *network = DoughWiFi::Instance();
+    DoughWiFi* network = DoughWiFi::Instance();
 
 #ifdef MQTT_DEVICE_ID
     _mqttDeviceId = MQTT_DEVICE_ID;
 #else
     _mqttDeviceId = network->getMacAddress();
 #endif
-    _ui->log("MQTT", "ss", "Device ID = ", _mqttDeviceId);
+    _logger.log("ss", "Device ID = ", _mqttDeviceId);
 
     _mqttClient.begin(MQTT_BROKER, MQTT_PORT, network->client);
 }
@@ -62,13 +59,13 @@ bool DoughMQTT::isConnected()
 
 bool DoughMQTT::connect()
 {
-    _ui->log("MQTT", "sssi", "Broker = ", MQTT_BROKER, ":", MQTT_PORT);
+    _logger.log("sssi", "Broker = ", MQTT_BROKER, ":", MQTT_PORT);
     _mqttClient.connect(_mqttDeviceId, MQTT_USERNAME, MQTT_PASSWORD);
 
     // Check if the connection to the broker was successful.
     if (!_mqttClient.connected())
     {
-        _ui->log("MQTT", "s", "ERROR - Connection to broker failed");
+        _logger.log("s", "ERROR - Connection to broker failed");
         return false;
     }
 
@@ -89,9 +86,9 @@ void DoughMQTT::procesIncomingsMessages()
 
 void DoughMQTT::handleMessage(String &topic, String &payload)
 {
-    DoughUI::Instance()->log("MQTT", "sSsS", "<<< ", topic, " = ", payload);
+    DoughMQTT::Instance()->_logger.log("sSsS", "<<< ", topic, " = ", payload);
 
-    DoughMQTT *mqtt = DoughMQTT::Instance();
+    DoughMQTT* mqtt = DoughMQTT::Instance();
     if (mqtt->_onMessage != nullptr)
     {
         int pos = topic.lastIndexOf('/');
@@ -103,19 +100,19 @@ void DoughMQTT::handleMessage(String &topic, String &payload)
     }
 }
 
-void DoughMQTT::subscribe(const char *key)
+void DoughMQTT::subscribe(const char* key)
 {
     char topic[200];
     snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
-    DoughUI::Instance()->log("MQTT", "ss", "Subscribe to ", topic);
+    _logger.log("ss", "Subscribe to ", topic);
     _mqttClient.subscribe(topic);
 }
 
-void DoughMQTT::publish(const char *key, const char *payload)
+void DoughMQTT::publish(const char* key, const char* payload)
 {
     char topic[200];
     snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
-    DoughUI::Instance()->log("MQTT", "ssss", ">>> ", topic, " = ", payload);
+    _logger.log("ssss", ">>> ", topic, " = ", payload);
     _mqttClient.publish(topic, payload);
 }
 
@@ -124,4 +121,12 @@ void DoughMQTT::publish(const char *key, int payload)
     char buf[16];
     snprintf(buf, 16, "%d", payload);
     publish(key, buf);
+}
+
+void DoughMQTT::publish(const char *key, Measurement measurement) {
+    if (measurement.ok) {
+        publish(key, measurement.value);
+    } else {
+        publish(key, "null");
+    }
 }

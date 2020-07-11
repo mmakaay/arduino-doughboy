@@ -3,22 +3,25 @@
 
 #include <DHT.h>
 #include "Sensors/HCSR04.h"
-#include "UI/DoughUI.h"
+#include "UI/DoughLogger.h"
 #include "Data/Measurement.h"
 #include "config.h"    
 
+/**
+ * This class provides access to the sensors in the device.
+ */
 class DoughSensors {
     public:
         static DoughSensors* Instance();
         void setup();
-        Measurement* readTemperature();
-        Measurement* readHumidity();
-        Measurement* readDistance();
+        Measurement readTemperature();
+        Measurement readHumidity();
+        Measurement readDistance();
 
     private:
         DoughSensors();
         static DoughSensors* _instance;
-        DoughUI *_ui;
+        DoughLogger _logger;
         DHT* _dht;
         HCSR04* _hcsr04;
 };

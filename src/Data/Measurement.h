@@ -2,17 +2,17 @@
 #define DOUGH_DATA_MEASUREMENT_H
 
 /**
- * The DoughDataMeasurement class represents a single measurement.
+ * This class represents a single measurement, which can be either a
+ * successful (bearing a measurement value) or a failed one.
  */
 class Measurement
 {
 public:
     Measurement();
-    Measurement(bool ok, int value);
     int value = 0;
     bool ok = false;
-    static Measurement *Failed();
-    static Measurement *Ok(int value);
+    static Measurement Failed();
+    static Measurement Value(int value);
 };
 
 #endif

@@ -1,19 +1,17 @@
 #include "Data/Measurement.h"
 
-Measurement::Measurement() {}
+Measurement::Measurement() { }
 
-Measurement::Measurement(bool ok, int value)
+Measurement Measurement::Failed()
 {
-    this->ok = ok;
-    this->value = value;
+    Measurement m;
+    return m;
 }
 
-Measurement *Measurement::Failed()
+Measurement Measurement::Value(int value)
 {
-    return new Measurement(false, 0);
-}
-
-Measurement *Measurement::Ok(int value)
-{
-    return new Measurement(true, value);
+    Measurement m;
+    m.ok = true;
+    m.value = value;
+    return m;
 }

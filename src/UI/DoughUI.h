@@ -11,12 +11,15 @@
 #undef LOG_WAIT_SERIAL
 
 #include <Arduino.h>
-#include <WiFiNINA.h>
 #include <stdarg.h>
 #include "UI/DoughButton.h"
 #include "UI/DoughLED.h"
 #include "config.h"
 
+/**
+ * This class groups all user interface functionality: serial logging,
+ * LEDs and buttons.
+ */
 class DoughUI
 {
 public:
@@ -33,15 +36,14 @@ public:
     void processButtonEvents();
     void clearButtonEvents();
     void updatedLEDs();
-    void flash_all_leds();
     void resume();
     void suspend();
-    void log(const char *category, const char *fmt, ...);
 
 private:
     DoughUI();
     void _setupTimerInterrupt();
     static DoughUI *_instance;
+    void _flash_all_leds();
 };
 
 #endif

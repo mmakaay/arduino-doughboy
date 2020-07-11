@@ -1,10 +1,11 @@
 #include "DoughUI.h"
 
+// ----------------------------------------------------------------------
+// Constructor
+// ----------------------------------------------------------------------
+
 DoughUI *DoughUI::_instance = nullptr;
 
-/**
- * Fetch the DoughUI singleton.
- */
 DoughUI *DoughUI::Instance()
 {
     if (DoughUI::_instance == nullptr)
@@ -21,9 +22,10 @@ DoughUI::DoughUI() : onoffButton(ONOFF_BUTTON_PIN),
                      led2(LED2_PIN),
                      led3(LED3_PIN) {}
 
-/**
- * Called from the main setup() function of the sketch.
- */
+// ----------------------------------------------------------------------
+// Setup
+// ----------------------------------------------------------------------
+
 void DoughUI::setup()
 {
     // Setup the serial port, used for logging.
@@ -54,7 +56,7 @@ void DoughUI::setup()
     _setupTimerInterrupt();
 
     // Notify the user that we're on a roll!
-    flash_all_leds();
+    _flash_all_leds();
 }
 
 void DoughUI::onoffButtonISR()
@@ -65,58 +67,6 @@ void DoughUI::onoffButtonISR()
 void DoughUI::setupButtonISR()
 {
     DoughUI::Instance()->setupButton.handleButtonState();
-}
-
-/**
- * Log a message to the serial interface.
- */
-void DoughUI::log(const char *category, const char *fmt, ...)
-{
-    char buf[12];
-    snprintf(buf, sizeof(buf) / sizeof(buf[0]), "%8s | ", category);
-    Serial.print(buf);
-
-    va_list args;
-    va_start(args, fmt);
-
-    while (*fmt != '\0')
-    {
-        if (*fmt == 'i')
-        {
-            int i = va_arg(args, int);
-            Serial.print(i);
-        }
-        else if (*fmt == 'f')
-        {
-            float f = va_arg(args, double);
-            Serial.print(f);
-        }
-        else if (*fmt == 'a')
-        {
-            IPAddress a = va_arg(args, IPAddress);
-            Serial.print(a);
-        }
-        else if (*fmt == 's')
-        {
-            const char *s = va_arg(args, const char *);
-            Serial.print(s);
-        }
-        else if (*fmt == 'S')
-        {
-            String S = va_arg(args, String);
-            Serial.print(S);
-        }
-        else
-        {
-            Serial.print("<log(): invalid format char '");
-            Serial.print(*fmt);
-            Serial.print("'>");
-        }
-        fmt++;
-    }
-    va_end(args);
-
-    Serial.println("");
 }
 
 /**
@@ -159,15 +109,9 @@ void DoughUI::_setupTimerInterrupt()
     NVIC_EnableIRQ(TC4_IRQn);      // Enable TC4 interrupts
 }
 
-void DoughUI::resume()
-{
-    NVIC_EnableIRQ(TC4_IRQn); // Enable TC4 interrupts
-}
-
-void DoughUI::suspend()
-{
-    NVIC_DisableIRQ(TC4_IRQn); // Disable TC4 interrupts
-}
+// ----------------------------------------------------------------------
+// Loop
+// ----------------------------------------------------------------------
 
 /**
  * This callback is called when the TC4 timer hits an overflow interrupt.
@@ -176,6 +120,24 @@ void TC4_Handler()
 {
     DoughUI::Instance()->updatedLEDs();
     REG_TC4_INTFLAG = TC_INTFLAG_OVF; // Clear the OVF interrupt flag.
+}
+
+/**
+ * Disables the TC4 interrupts, suspending timed async updates to
+ * the user interface.
+ */
+void DoughUI::suspend()
+{
+    NVIC_DisableIRQ(TC4_IRQn);
+}
+
+/**
+ * Enables the TC4 interrupts, resuming timed async updates to the
+ * user interface.
+ */
+void DoughUI::resume()
+{
+    NVIC_EnableIRQ(TC4_IRQn);
 }
 
 /**
@@ -199,7 +161,7 @@ void DoughUI::clearButtonEvents()
 /**
  * Update the state of all the LEDs in the system.
  * This method is called both sync by methods in this class and async by
- * the timer interrupt code from above. The timer interrupt based invocatino
+ * the timer interrupt code from above. The timer interrupt based invocation
  * makes it possible to do LED updates, while the device is busy doing
  * something else.
  */
@@ -214,7 +176,7 @@ void DoughUI::updatedLEDs()
 /**
  * Flash all LEDs, one at a time.
  */
-void DoughUI::flash_all_leds()
+void DoughUI::_flash_all_leds()
 {
     ledBuiltin.on();
     delay(100);

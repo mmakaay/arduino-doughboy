@@ -1,26 +1,27 @@
-#include "Data/DataController.h"
-#include "Data/Measurement.h"
-
-typedef Measurement *MeasurementPtr;
+#include "Data/Measurements.h"
+#include "UI/DoughUI.h"
 
 Measurements::Measurements(unsigned int avgLookback)
 {
     _storageSize = avgLookback;
-    _storage = new MeasurementPtr[avgLookback];
-    for (unsigned int i = 0; i < avgLookback; i++)
-    {
-        _storage[i] = nullptr;
+
+    _storage = new Measurement*[avgLookback];
+    for (unsigned int i = 0; i < avgLookback; i++) {
+        _storage[i] = new Measurement;
     }
+    clearHistory();
 }
 
-void Measurements::add(Measurement *measurement)
+void Measurements::add(Measurement measurement)
 {
-    auto index = _next();
-    _storage[index] = measurement;
-    if (measurement->ok)
+    unsigned int index = _next();
+    _storage[index]->ok = measurement.ok;
+    _storage[index]->value = measurement.value;
+    
+    if (measurement.ok)
     {
         _averageCount++;
-        _averageSum += measurement->value;
+        _averageSum += measurement.value;
     }
 }
 
@@ -31,26 +32,28 @@ unsigned int Measurements::_next()
     {
         _index = 0;
     }
-    if (_storage[_index] != nullptr && _storage[_index]->ok)
+    if (_storage[_index]->ok)
     {
         _averageSum -= _storage[_index]->value;
         _averageCount--;
     }
+    _storage[_index]->ok = false;
+    _storage[_index]->value = 0;
     return _index;
 }
 
-Measurement *Measurements::getLast()
+Measurement Measurements::getLast()
 {
-    return _storage[_index];
+    return *_storage[_index];
 }
 
-Measurement *Measurements::getAverage()
+Measurement Measurements::getAverage()
 {
-    auto result = new Measurement();
+    Measurement result;
     if (_averageCount > 0)
     {
-        result->ok = true;
-        result->value = round(_averageSum / _averageCount);
+        result.ok = true;
+        result.value = round(_averageSum / _averageCount);
     }
     return result;
 }

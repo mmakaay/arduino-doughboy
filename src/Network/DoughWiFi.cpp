@@ -18,10 +18,7 @@ DoughWiFi *DoughWiFi::Instance()
     return DoughWiFi::_instance;
 }
 
-DoughWiFi::DoughWiFi()
-{
-    _ui = DoughUI::Instance();
-}
+DoughWiFi::DoughWiFi() : _logger("WIFI") {}
 
 // ----------------------------------------------------------------------
 // Setup
@@ -39,7 +36,7 @@ void DoughWiFi::_setMacAddress()
 void DoughWiFi::setup()
 {
     _setMacAddress();
-    DoughUI::Instance()->log("NETWORK", "ss", "MAC address = ", getMacAddress());
+    _logger.log("ss", "MAC address = ", getMacAddress());
 }
 
 // ----------------------------------------------------------------------
@@ -58,7 +55,7 @@ bool DoughWiFi::connect()
     // Check if a device with a WiFi shield is used.
     if (status == WL_NO_SHIELD)
     {
-        _ui->log("NETWORK", "s", "ERROR - Device has no WiFi shield");
+        _logger.log("s", "ERROR - Device has no WiFi shield");
         delay(5000);
         return false;
     }
@@ -70,19 +67,19 @@ bool DoughWiFi::connect()
     }
 
     // Setup the connection to the WiFi network.
-    _ui->log("NETWORK", "ss", "WiFi network = ", WIFI_SSID);
+    _logger.log("ss", "WiFi network = ", WIFI_SSID);
     status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
     // Check if the connection attempt was successful.
     if (status == WL_CONNECTED)
     {
-        _ui->log("NETWORK", "sa", "IP-Address = ", WiFi.localIP());
-        _ui->log("NETWORK", "sis", "Signal strength = ", WiFi.RSSI(), " dBm");
+        _logger.log("sa", "IP-Address = ", WiFi.localIP());
+        _logger.log("sis", "Signal strength = ", WiFi.RSSI(), " dBm");
         return true;
     }
     else
     {
-        _ui->log("NETWORK", "sis", "ERROR - WiFi connection failed (reason: ", WiFi.reasonCode(), ")");
+        _logger.log("sis", "ERROR - WiFi connection failed (reason: ", WiFi.reasonCode(), ")");
         return false;
     }
 }
