@@ -75,15 +75,15 @@ void DataController::setContainerHeight(int height)
     if (height <= HCSR04_MIN_MM)
     {
         _logger.log("sisis", "ERROR - Container height ", height,
-            "mm is less than the minimum measuring distance of ",
-            HCSR04_MIN_MM, "mm");
+                    "mm is less than the minimum measuring distance of ",
+                    HCSR04_MIN_MM, "mm");
         return;
     }
     if (height >= HCSR04_MAX_MM)
     {
-       _logger.log("sisis", "ERROR - Container height ", height,
-            "mm is more than the maximum measuring distance of ",
-            HCSR04_MAX_MM, "mm");
+        _logger.log("sisis", "ERROR - Container height ", height,
+                    "mm is more than the maximum measuring distance of ",
+                    HCSR04_MAX_MM, "mm");
         return;
     }
     _logger.log("sis", "Set container height to ", height, "mm");
@@ -135,18 +135,52 @@ void DataController::_sample()
         _ui->suspend();
 
         // Take a sample.
+        Measurement m;
         switch (_sampleType)
         {
         case SAMPLE_TEMPERATURE:
-            _temperatureMeasurements.add(_sensors->readTemperature());
+            m = _sensors->readTemperature();
+            _temperatureMeasurements.add(m);
+            if (_temperatureLastPublished.ok && m.ok && _temperatureLastPublished.value != m.value)
+            {
+                if (m.value == _temperatureMeasurements.getAverage().value ||
+                    abs(_temperatureLastPublished.value - m.value) > TEMPERATURE_SIGNIFICANT_CHANGE) {
+                    _publishTemperature();
+                }
+            }
+            else if (_temperatureLastPublished.ok == false && m.ok) {
+                _publishTemperature();
+            }
             _sampleType = SAMPLE_HUMIDITY;
             break;
         case SAMPLE_HUMIDITY:
-            _humidityMeasurements.add(_sensors->readHumidity());
+            m = _sensors->readHumidity();
+            _humidityMeasurements.add(m);
+            if (_humidityLastPublished.ok && m.ok && _humidityLastPublished.value != m.value)
+            {
+                if (m.value == _humidityMeasurements.getAverage().value ||
+                    abs(_humidityLastPublished.value - m.value) > HUMIDITY_SIGNIFICANT_CHANGE) {
+                    _publishHumidity();
+                }
+            }
+            else if (_humidityLastPublished.ok == false && m.ok) {
+                _publishHumidity();
+            }
             _sampleType = SAMPLE_DISTANCE;
             break;
         case SAMPLE_DISTANCE:
-            _distanceMeasurements.add(_sensors->readDistance());
+            m = _sensors->readDistance();
+            _distanceMeasurements.add(m);
+            if (_distanceLastPublished.ok && m.ok && _distanceLastPublished.value != m.value)
+            {
+                if (m.value == _distanceMeasurements.getAverage().value ||
+                    abs(_distanceLastPublished.value - m.value) > DISTANCE_SIGNIFICANT_CHANGE) {
+                    _publishDistance();
+                }
+            }
+            else if (_distanceLastPublished.ok == false && m.ok) {
+                _publishDistance();
+            }
             break;
         }
 
@@ -166,14 +200,36 @@ void DataController::_publish()
     if (_lastPublish == 0 || millis() - _lastPublish > PUBLISH_INTERVAL)
     {
         _lastPublish = millis();
-
-        _mqtt->publish("temperature", _temperatureMeasurements.getLast());
-        _mqtt->publish("temperature/average", _temperatureMeasurements.getAverage());
-        _mqtt->publish("humidity", _humidityMeasurements.getLast());
-        _mqtt->publish("humidity/average", _humidityMeasurements.getAverage());
-        _mqtt->publish("distance", _distanceMeasurements.getLast());
-        _mqtt->publish("distance/average", _distanceMeasurements.getAverage());
-
+        _publishTemperature();
+        _publishHumidity();
+        _publishDistance();
         _ui->led1.dip()->fast();
     }
+}
+
+void DataController::_publishTemperature()
+{
+    auto m = _temperatureMeasurements.getLast();
+    _temperatureLastPublished.ok = m.ok;
+    _temperatureLastPublished.value = m.value;
+    _mqtt->publish("temperature", m);
+    _mqtt->publish("temperature/average", _temperatureMeasurements.getAverage());
+}
+
+void DataController::_publishHumidity()
+{
+    auto m = _humidityMeasurements.getLast();
+    _humidityLastPublished.ok = m.ok;
+    _humidityLastPublished.value = m.value;
+    _mqtt->publish("humidity", _humidityMeasurements.getLast());
+    _mqtt->publish("humidity/average", _humidityMeasurements.getAverage());
+}
+
+void DataController::_publishDistance()
+{
+    auto m = _distanceMeasurements.getLast();
+    _distanceLastPublished.ok = m.ok;
+    _distanceLastPublished.value = m.value;
+    _mqtt->publish("distance", _distanceMeasurements.getLast());
+    _mqtt->publish("distance/average", _distanceMeasurements.getAverage());
 }

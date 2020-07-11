@@ -9,7 +9,7 @@
 #define MQTT_PASSWORD "<mqtt password>"
 
 // The prefix to use for the MQTT publishing topic.
-#define MQTT_TOPIC_PREFIX "sensors/doughboy"
+//#define MQTT_TOPIC_PREFIX "sensors/doughboy"
 
 // Define this one to not use the WiFi MAC address as the device ID
 // in the publish topics (sensors/doughboy/<MQTT_DEVICE_ID>/...)
