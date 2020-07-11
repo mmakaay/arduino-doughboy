@@ -2,9 +2,11 @@
 #define DOUGHBOY_H
 
 #include <Arduino.h>
+#include "Sensors/TemperatureSensor.h"
+#include "Sensors/HumiditySensor.h"
+#include "Sensors/DistanceSensor.h"
 #include "Network/DoughWiFi.h"
 #include "Network/DoughMQTT.h"
-#include "Sensors/DoughSensors.h"
 #include "Data/DataController.h"
 #include "UI/DoughButton.h"
 #include "UI/DoughUI.h"

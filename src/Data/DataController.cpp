@@ -17,26 +17,25 @@ DataController *DataController::Instance()
 
 DataController::DataController() : _temperatureMeasurements(
                                        "temperature",
-                                       readTemperature,
+                                       TemperatureSensor::Instance(),
                                        TEMPERATURE_AVG_LOOKBACK,
                                        TEMPERATURE_SIGNIFICANT_CHANGE,
                                        PUBLISH_INTERVAL),
                                    _humidityMeasurements(
                                        "humidity",
-                                       readHumidity,
+                                       HumiditySensor::Instance(),
                                        HUMIDITY_AVG_LOOKBACK,
                                        HUMIDITY_SIGNIFICANT_CHANGE,
                                        PUBLISH_INTERVAL),
                                    _distanceMeasurements(
                                        "distance",
-                                       readDistance,
+                                       DistanceSensor::Instance(),
                                        DISTANCE_AVG_LOOKBACK,
                                        DISTANCE_SIGNIFICANT_CHANGE,
                                        PUBLISH_INTERVAL),
                                    _logger("DATA")
 {
     _ui = DoughUI::Instance();
-    _sensors = DoughSensors::Instance();
     _mqtt = DoughMQTT::Instance();
 }
 
@@ -52,6 +51,10 @@ void DataController::setup()
     DoughMQTT *mqtt = DoughMQTT::Instance();
     mqtt->onConnect(DataController::handleMqttConnect);
     mqtt->onMessage(DataController::handleMqttMessage);
+
+    _temperatureMeasurements.setup();
+    _humidityMeasurements.setup();
+    _distanceMeasurements.setup();
 }
 
 void DataController::handleMqttConnect(DoughMQTT *mqtt)

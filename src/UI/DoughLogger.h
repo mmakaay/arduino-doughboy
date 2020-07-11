@@ -2,7 +2,7 @@
 #define DOUGH_LOGGER_H
 
 #define LOGGER_PREFIX_BUFLEN 16
-#define LOGGER_PREFIX_FORMAT "%10s | "
+#define LOGGER_PREFIX_FORMAT "%11s | "
 
 #include <Arduino.h>
 #include <stdarg.h>
@@ -17,9 +17,12 @@ class DoughLogger
 public:
     DoughLogger(const char *section);
     void log(const char *fmt, ...);
+    void suspend();
+    void resume();
 
 private:
     const char *_section;
+    bool _suspended = false;
 };
 
 #endif

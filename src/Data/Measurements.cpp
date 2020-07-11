@@ -3,26 +3,29 @@
 
 Measurements::Measurements(
     const char *mqttKey,
-    Measurement (*measureFunc)(),
+    SensorBase *sensor,
     unsigned int storageSize,
     unsigned int significantChange,
     unsigned int minimumPublishTime)
 {
     _mqttKey = mqttKey;
-    _measureFunc = measureFunc;
+    _sensor = sensor;
     _storageSize = storageSize;
     _significantChange = significantChange;
     _minimumPublishTime = minimumPublishTime;
     _mqtt = DoughMQTT::Instance();
+}
 
+void Measurements::setup()
+{
     // Format the key to use for publishing the average (i.e. "<mqttKey>/average").
-    auto lenAverageKey = strlen(mqttKey) + 8;      // +8 for the "/average" suffix
-    _mqttAverageKey = new char[lenAverageKey + 1]; // +1 for the ending \0
+    auto lenAverageKey = strlen(_mqttKey) + 9;  // +9 for the "/average\0" suffix
+    _mqttAverageKey = new char[lenAverageKey];
     snprintf(_mqttAverageKey, lenAverageKey, "%s/average", _mqttKey);
 
     // Initialize the storage for holding the measurements.
-    _storage = new Measurement *[storageSize];
-    for (unsigned int i = 0; i < storageSize; i++)
+    _storage = new Measurement *[_storageSize];
+    for (unsigned int i = 0; i < _storageSize; i++)
     {
         _storage[i] = new Measurement;
     }
@@ -31,8 +34,8 @@ Measurements::Measurements(
 
 void Measurements::process()
 {
-    auto m = _measureFunc();
-    _add(m);
+    auto m = _sensor->read();
+    _store(m);
     if (_mustPublish())
     {
         _publish();
@@ -103,7 +106,7 @@ void Measurements::_publish()
     last.copyTo(&_lastPublished);
 }
 
-void Measurements::_add(Measurement measurement)
+void Measurements::_store(Measurement measurement)
 {
     measurement.copyTo(_storage[_next()]);
 

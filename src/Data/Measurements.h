@@ -2,6 +2,7 @@
 #define DOUGH_DATA_MEASUREMENTS_H
 
 #include <Arduino.h>
+#include "Sensors/SensorBase.h"
 #include "Data/Measurement.h"
 #include "Network/DoughMQTT.h"
 
@@ -18,8 +19,8 @@ public:
     /**
      * Create a new Measurements object.
      * 
-     * @param measureFunc
-     *     Function that reads a sensor and returns a Measurement object.
+     * @param sensor
+     *     The sensor to read, implements SensorBase.
      * @param storageSize
      *     Number of measurements to keep track of for computing an average.
      * @param significantChange
@@ -31,10 +32,11 @@ public:
      */
     Measurements(
         const char *mqttKey,
-        Measurement (*measureFunc)(),
+        SensorBase *sensor,
         unsigned int storageSize,
         unsigned int significantChange,
         unsigned int minimumPublishTime);
+    void setup();
     void process();
     Measurement getLast();
     Measurement getAverage();
@@ -44,7 +46,7 @@ private:
     DoughMQTT *_mqtt;
     const char *_mqttKey;
     char *_mqttAverageKey;
-    Measurement (*_measureFunc)();
+    SensorBase *_sensor;
     Measurement **_storage;
     unsigned int _storageSize;
     unsigned int _significantChange;
@@ -57,7 +59,7 @@ private:
     Measurement _lastPublishedAverage;
     bool _mustPublish();
     void _publish();
-    void _add(Measurement measurement);
+    void _store(Measurement measurement);
     unsigned int _next();
 };
 

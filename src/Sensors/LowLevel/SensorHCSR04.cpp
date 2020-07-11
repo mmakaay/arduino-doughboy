@@ -1,26 +1,32 @@
-#include "Sensors/HCSR04.h"
+#include "Sensors/LowLevel/SensorHCSR04.h"
 
-HCSR04::HCSR04(int triggerPin, int echoPin)
+SensorHCSR04::SensorHCSR04(int triggerPin, int echoPin) : _logger("HCSR04")
 {
     _triggerPin = triggerPin;
     _echoPin = echoPin;
     _temperature = HCSR04_INIT_TEMPERATURE;
     _humidity = HCSR04_INIT_HUMIDITY;
+    #ifndef HCSR04_DEBUG
+    _logger.suspend();
+    #endif
 }
 
-void HCSR04::begin()
+void SensorHCSR04::setup()
 {
+    _logger.log("sisi", "Setup output pin ", _triggerPin, " and input pin ", _echoPin);
     pinMode(_triggerPin, OUTPUT);
     pinMode(_echoPin, INPUT);
 }
 
-void HCSR04::setTemperature(int temperature)
+void SensorHCSR04::setTemperature(int temperature)
 {
+    _logger.log("sis", "Set temperature to ", temperature, "°C");
     _temperature = temperature;
 }
 
-void HCSR04::setHumidity(int humidity)
+void SensorHCSR04::setHumidity(int humidity)
 {
+    _logger.log("sis", "Set humidity to ", humidity, "%");
     _humidity = humidity;
 }
 
@@ -29,7 +35,7 @@ void HCSR04::setHumidity(int humidity)
  * When reading the distance fails, -1 is returned.
  * Otherwise the distance in mm.
  */
-int HCSR04::readDistance()
+int SensorHCSR04::readDistance()
 {
     _setSpeedOfSound();
     _setEchoTimeout();
@@ -47,20 +53,22 @@ int HCSR04::readDistance()
  * and relative humidity. I derived this formula from a YouTube
  * video about the HC-SR04: https://youtu.be/6F1B_N6LuKw?t=1548
  */
-void HCSR04::_setSpeedOfSound()
+void SensorHCSR04::_setSpeedOfSound()
 {
     _speedOfSound =
         0.3314 +
         (0.000606 * _temperature) +
         (0.0000124 * _humidity);
+    _logger.log("sfs", "Speed of sound = ", _speedOfSound, "mm/Ms");
 }
 
-void HCSR04::_setEchoTimeout()
+void SensorHCSR04::_setEchoTimeout()
 {
     _echoTimeout = HCSR04_MAX_MM * 2 / _speedOfSound;
+    _logger.log("sfs", "Echo timeout = ", _echoTimeout, "Ms");
 }
 
-void HCSR04::_takeSamples()
+void SensorHCSR04::_takeSamples()
 {
     _successfulSamples = 0;
     for (int i = 0; i < HCSR04_SAMPLES_TAKE; i++)
@@ -81,12 +89,12 @@ void HCSR04::_takeSamples()
     }
 }
 
-bool HCSR04::_haveEnoughSamples()
+bool SensorHCSR04::_haveEnoughSamples()
 {
     return _successfulSamples >= HCSR04_SAMPLES_USE;
 }
 
-int HCSR04::_takeSample()
+int SensorHCSR04::_takeSample()
 {
     // Send 10μs trigger to ask sensor for a measurement.
     digitalWrite(HCSR04_TRIG_PIN, LOW);
@@ -100,6 +108,7 @@ int HCSR04::_takeSample()
 
     // Compute the distance, based on the echo signal length.
     double distance = durationMicroSec / 2.0 * _speedOfSound;
+    _logger.log("sfs", "Sample result = ", distance, "mm");
     if (distance < HCSR04_MIN_MM || distance >= HCSR04_MAX_MM)
     {
         return -1;
@@ -110,7 +119,7 @@ int HCSR04::_takeSample()
     }
 }
 
-void HCSR04::_sortSamples()
+void SensorHCSR04::_sortSamples()
 {
     int holder, x, y;
     for (x = 0; x < _successfulSamples; x++)
@@ -133,7 +142,7 @@ void HCSR04::_sortSamples()
  * When not enough samples were collected in the previous steps, then
  * NAN is returned.
  */
-int HCSR04::_computeAverage()
+int SensorHCSR04::_computeAverage()
 {
     float sum = 0;
     int offset = (_successfulSamples - HCSR04_SAMPLES_USE) / 2;

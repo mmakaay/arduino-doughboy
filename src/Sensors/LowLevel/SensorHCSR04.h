@@ -25,22 +25,27 @@
 #define HCSR04_INIT_TEMPERATURE 19.000
 #define HCSR04_INIT_HUMIDITY 50.000
 
+// Define this one to enable HCSR04 debug logging.
+#undef HCSR04_DEBUG
+
 #include <Arduino.h>
+#include "UI/DoughLogger.h"
 #include "config.h"
 
 /**
  * This class is used to get a distance reading from an HCSR04 sensor.
  */
-class HCSR04
+class SensorHCSR04
 {
 public:
-    HCSR04(int triggerPin, int echoPin);
-    void begin();
+    SensorHCSR04(int triggerPin, int echoPin);
+    void setup();
     void setTemperature(int temperature);
     void setHumidity(int humidity);
     int readDistance();
 
 private:
+    DoughLogger _logger;
     int _triggerPin;
     int _echoPin;
     int _humidity;

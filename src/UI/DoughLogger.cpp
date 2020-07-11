@@ -5,8 +5,23 @@ DoughLogger::DoughLogger(const char *section)
     _section = section;
 }
 
+void DoughLogger::suspend()
+{
+    _suspended = true;
+}
+
+void DoughLogger::resume()
+{
+    _suspended = false;
+}
+
 void DoughLogger::log(const char *fmt, ...)
 {
+    if (_suspended)
+    {
+        return;
+    }
+
     char buf[LOGGER_PREFIX_BUFLEN];
     snprintf(buf, sizeof(buf) / sizeof(buf[0]), LOGGER_PREFIX_FORMAT, _section);
     Serial.print(buf);

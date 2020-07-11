@@ -29,7 +29,9 @@
 
 #include <Arduino.h>
 #include "Data/Measurements.h"
-#include "Sensors/DoughSensors.h"
+#include "Sensors/TemperatureSensor.h"
+#include "Sensors/HumiditySensor.h"
+#include "Sensors/DistanceSensor.h"
 #include "Network/DoughWiFi.h"
 #include "Network/DoughMQTT.h"
 #include "UI/DoughUI.h"
@@ -64,7 +66,6 @@ private:
     static DataController *_instance;
     DoughUI *_ui;
     DoughMQTT *_mqtt;
-    DoughSensors *_sensors;
     Measurements _temperatureMeasurements;
     Measurements _humidityMeasurements;
     Measurements _distanceMeasurements;

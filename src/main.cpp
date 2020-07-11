@@ -1,17 +1,19 @@
 #include "main.h"
 
+// TODO: move config to a separate class
+// TODO: see if I can give each sensor its own built-in loop schedule for sampling, the DoughData class might be overkill in the latest setup.
 // TOOD: implement the calibration logic
-// TODO: use different timings for temperature, humidity and distance measurements. Temp/Humidity together takes about 500ms, which slows down stuff.
-// TODO: make the measuring more loop-y, giving back control to the main loop more often for better UI responsiveness
 // TODO: see what more stuff can be moved to the UI code. Maybe state to UI state translation ought to be there as well
-// TODO: use longer term averages for data
+// TODO: make significantChange part of sensor class?
 
 DoughBoyState state = CONFIGURING;
 auto logger = DoughLogger("MAIN");
 
 void setup()
 {
-    DoughSensors::Instance()->setup();
+    TemperatureSensor::Instance()->setup();
+    HumiditySensor::Instance()->setup();
+    DistanceSensor::Instance()->setup();
     DoughWiFi::Instance()->setup();
     DoughMQTT::Instance()->setup();
     DataController::Instance()->setup();
