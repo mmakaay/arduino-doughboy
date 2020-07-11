@@ -33,7 +33,7 @@
 #include "Sensors/HumiditySensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Network/DoughWiFi.h"
-#include "Network/DoughMQTT.h"
+#include "Network/MQTT.h"
 #include "UI/DoughUI.h"
 #include "UI/DoughLogger.h"
 
@@ -58,14 +58,14 @@ public:
     void clearHistory();
     void setContainerHeight(int height);
     bool isConfigured();
-    static void handleMqttConnect(DoughMQTT *mqtt);
+    static void handleMqttConnect(Dough::MQTT *mqtt);
     static void handleMqttMessage(String &key, String &value);
 
 private:
     DataController();
     static DataController *_instance;
     DoughUI *_ui;
-    DoughMQTT *_mqtt;
+    Dough::MQTT *_mqtt;
     Measurements _temperatureMeasurements;
     Measurements _humidityMeasurements;
     Measurements _distanceMeasurements;

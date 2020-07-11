@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "Sensors/SensorBase.h"
 #include "Data/Measurement.h"
-#include "Network/DoughMQTT.h"
+#include "Network/MQTT.h"
 
 /**
  * This class is used to store measurements for a sensor and to keep
@@ -43,7 +43,7 @@ public:
     void clearHistory();
 
 private:
-    DoughMQTT *_mqtt;
+    Dough::MQTT *_mqtt;
     const char *_mqttKey;
     char *_mqttAverageKey;
     SensorBase *_sensor;

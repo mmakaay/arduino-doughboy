@@ -13,7 +13,7 @@ Measurements::Measurements(
     _storageSize = storageSize;
     _significantChange = significantChange;
     _minimumPublishTime = minimumPublishTime;
-    _mqtt = DoughMQTT::Instance();
+    _mqtt = Dough::MQTT::Instance();
 }
 
 void Measurements::setup()

@@ -36,7 +36,7 @@ DataController::DataController() : _temperatureMeasurements(
                                    _logger("DATA")
 {
     _ui = DoughUI::Instance();
-    _mqtt = DoughMQTT::Instance();
+    _mqtt = Dough::MQTT::Instance();
 }
 
 // ----------------------------------------------------------------------
@@ -48,7 +48,7 @@ void DataController::setup()
     _containerHeight = 0.00;
     _containerHeightSet = false;
 
-    DoughMQTT *mqtt = DoughMQTT::Instance();
+    Dough::MQTT *mqtt = Dough::MQTT::Instance();
     mqtt->onConnect(DataController::handleMqttConnect);
     mqtt->onMessage(DataController::handleMqttMessage);
 
@@ -57,7 +57,7 @@ void DataController::setup()
     _distanceMeasurements.setup();
 }
 
-void DataController::handleMqttConnect(DoughMQTT *mqtt)
+void DataController::handleMqttConnect(Dough::MQTT *mqtt)
 {
     mqtt->subscribe("container_height");
 }

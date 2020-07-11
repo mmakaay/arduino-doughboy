@@ -1,5 +1,6 @@
 #include "main.h"
 
+// TODO: move code to Dough namespace
 // TODO: move config to a separate class
 // TODO: see if I can give each sensor its own built-in loop schedule for sampling, the DoughData class might be overkill in the latest setup.
 // TOOD: implement the calibration logic
@@ -15,7 +16,7 @@ void setup()
     HumiditySensor::Instance()->setup();
     DistanceSensor::Instance()->setup();
     DoughWiFi::Instance()->setup();
-    DoughMQTT::Instance()->setup();
+    Dough::MQTT::Instance()->setup();
     DataController::Instance()->setup();
     auto ui = DoughUI::Instance();
     ui->setup();
@@ -28,7 +29,7 @@ void loop()
 {
     auto ui = DoughUI::Instance();
     auto data = DataController::Instance();
-    auto mqtt = DoughMQTT::Instance();
+    auto mqtt = Dough::MQTT::Instance();
 
     ui->processButtonEvents();
 
@@ -73,7 +74,7 @@ bool setupNetworkConnection()
 
     auto ui = DoughUI::Instance();
     auto network = DoughWiFi::Instance();
-    auto mqtt = DoughMQTT::Instance();
+    auto mqtt = Dough::MQTT::Instance();
 
     if (!network->isConnected())
     {
@@ -149,7 +150,7 @@ void setStateToConfiguring()
     ui->led1.on();
     ui->led2.blink()->fast();
     ui->led3.off();
-    DoughMQTT::Instance()->publish("state", "configuring");
+    Dough::MQTT::Instance()->publish("state", "configuring");
 }
 
 void setStateToMeasuring()
@@ -160,7 +161,7 @@ void setStateToMeasuring()
     ui->led1.on();
     ui->led2.on();
     ui->led3.on();
-    DoughMQTT::Instance()->publish("state", "measuring");
+    Dough::MQTT::Instance()->publish("state", "measuring");
 }
 
 void setStateToPaused()
@@ -171,7 +172,7 @@ void setStateToPaused()
     ui->led1.on();
     ui->led2.on();
     ui->led3.pulse();
-    DoughMQTT::Instance()->publish("state", "paused");
+    Dough::MQTT::Instance()->publish("state", "paused");
 }
 
 void setStateToCalibrating()
@@ -182,5 +183,5 @@ void setStateToCalibrating()
     ui->led1.on();
     ui->led2.blink()->slow();
     ui->led3.off();
-    DoughMQTT::Instance()->publish("state", "calibrating");
+    Dough::MQTT::Instance()->publish("state", "calibrating");
 }
