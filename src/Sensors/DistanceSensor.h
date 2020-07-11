@@ -14,10 +14,10 @@ class DistanceSensor : public SensorBase
 {
 public:
     static DistanceSensor *Instance();
-    void setup();
+    virtual void setup();
+    virtual Measurement read();
     void setTemperature(int temperature);
     void setHumidity(int humidity);
-    Measurement read();
 
 private:
     DistanceSensor();

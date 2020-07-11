@@ -15,8 +15,8 @@ class TemperatureSensor : public SensorBase
 {
 public:
     static TemperatureSensor *Instance();
-    void setup();
-    Measurement read();
+    virtual void setup();
+    virtual Measurement read();
 
 private:
     TemperatureSensor();

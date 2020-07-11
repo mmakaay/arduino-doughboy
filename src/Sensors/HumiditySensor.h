@@ -15,8 +15,8 @@ class HumiditySensor : public SensorBase
 {
 public:
     static HumiditySensor *Instance();
-    void setup();
-    Measurement read();
+    virtual void setup();
+    virtual Measurement read();
 
 private:
     HumiditySensor();
