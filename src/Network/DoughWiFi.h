@@ -11,8 +11,8 @@
 class DoughWiFi
 {
 public:
-    static DoughWiFi* Instance();
-    char* getMacAddress();
+    static DoughWiFi *Instance();
+    char *getMacAddress();
     void setup();
     void loop();
     bool isConnected();
@@ -21,7 +21,7 @@ public:
 
 private:
     DoughWiFi();
-    static DoughWiFi* _instance;
+    static DoughWiFi *_instance;
     void _setMacAddress();
     char _macAddress[18]; // max MAC address length + 1
     DoughLogger _logger;

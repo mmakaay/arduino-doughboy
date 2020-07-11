@@ -4,12 +4,9 @@
 // Constructor
 // ----------------------------------------------------------------------
 
-DoughMQTT* DoughMQTT::_instance = nullptr;
+DoughMQTT *DoughMQTT::_instance = nullptr;
 
-/**
- * Fetch the DoughMQTT singleton.
- */
-DoughMQTT* DoughMQTT::Instance()
+DoughMQTT *DoughMQTT::Instance()
 {
     if (DoughMQTT::_instance == nullptr)
     {
@@ -18,7 +15,7 @@ DoughMQTT* DoughMQTT::Instance()
     return DoughMQTT::_instance;
 }
 
-DoughMQTT::DoughMQTT() : _logger("MQTT") { }
+DoughMQTT::DoughMQTT() : _logger("MQTT") {}
 
 // ----------------------------------------------------------------------
 // Setup
@@ -26,7 +23,7 @@ DoughMQTT::DoughMQTT() : _logger("MQTT") { }
 
 void DoughMQTT::setup()
 {
-    DoughWiFi* network = DoughWiFi::Instance();
+    DoughWiFi *network = DoughWiFi::Instance();
 
 #ifdef MQTT_DEVICE_ID
     _mqttDeviceId = MQTT_DEVICE_ID;
@@ -88,7 +85,7 @@ void DoughMQTT::handleMessage(String &topic, String &payload)
 {
     DoughMQTT::Instance()->_logger.log("sSsS", "<<< ", topic, " = ", payload);
 
-    DoughMQTT* mqtt = DoughMQTT::Instance();
+    DoughMQTT *mqtt = DoughMQTT::Instance();
     if (mqtt->_onMessage != nullptr)
     {
         int pos = topic.lastIndexOf('/');
@@ -100,7 +97,7 @@ void DoughMQTT::handleMessage(String &topic, String &payload)
     }
 }
 
-void DoughMQTT::subscribe(const char* key)
+void DoughMQTT::subscribe(const char *key)
 {
     char topic[200];
     snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
@@ -108,7 +105,7 @@ void DoughMQTT::subscribe(const char* key)
     _mqttClient.subscribe(topic);
 }
 
-void DoughMQTT::publish(const char* key, const char* payload)
+void DoughMQTT::publish(const char *key, const char *payload)
 {
     char topic[200];
     snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
@@ -123,10 +120,14 @@ void DoughMQTT::publish(const char *key, int payload)
     publish(key, buf);
 }
 
-void DoughMQTT::publish(const char *key, Measurement measurement) {
-    if (measurement.ok) {
+void DoughMQTT::publish(const char *key, Measurement measurement)
+{
+    if (measurement.ok)
+    {
         publish(key, measurement.value);
-    } else {
+    }
+    else
+    {
         publish(key, "null");
     }
 }

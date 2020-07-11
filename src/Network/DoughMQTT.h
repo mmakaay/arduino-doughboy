@@ -14,33 +14,33 @@
  */
 class DoughMQTT;
 
-typedef void (*DoughMQTTConnectHandler)(DoughMQTT* mqtt);
+typedef void (*DoughMQTTConnectHandler)(DoughMQTT *mqtt);
 typedef void (*DoughMQTTMessageHandler)(String &key, String &value);
 
 class DoughMQTT
 {
 public:
-    static DoughMQTT* Instance();
+    static DoughMQTT *Instance();
     void setup();
     void onConnect(DoughMQTTConnectHandler callback);
     void onMessage(DoughMQTTMessageHandler callback);
     bool isConnected();
     bool connect();
-    void subscribe(const char* key);
+    void subscribe(const char *key);
     void procesIncomingsMessages();
-    void publish(const char* key, const char* payload);
-    void publish(const char* key, int payload);
-    void publish(const char* key, Measurement measurement);
+    void publish(const char *key, const char *payload);
+    void publish(const char *key, int payload);
+    void publish(const char *key, Measurement measurement);
 
 private:
     DoughMQTT();
-    static DoughMQTT* _instance;
+    static DoughMQTT *_instance;
     MQTTClient _mqttClient;
     DoughLogger _logger;
     DoughMQTTConnectHandler _onConnect = nullptr;
     MQTTClientCallbackSimple _onMessage = nullptr;
     static void handleMessage(String &topic, String &payload);
-    char* _mqttDeviceId;
+    char *_mqttDeviceId;
 };
 
 #endif

@@ -14,7 +14,7 @@
 // in the average computation.
 #define TEMPERATURE_AVG_LOOKBACK 6       // making this a 3 minute average
 #define HUMIDITY_AVG_LOOKBACK 6          // making this a 3 minute average
-#define DISTANCE_AVG_LOOKBACK 28 * 2 * 5 // making this a 5 minute average
+#define DISTANCE_AVG_LOOKBACK 28 * 2 * 3 // making this a 3 minute average
 
 // When significant changes occur in the sensor measurements, they are
 // published to MQTT. These definitions specify what is considered significant.
@@ -22,10 +22,10 @@
 #define HUMIDITY_SIGNIFICANT_CHANGE 2    // also to dampen flapping behavior.
 #define DISTANCE_SIGNIFICANT_CHANGE 3    // based on the sensor specification of 3mm resolution
 
-// The minimal interval at which to forcibly publish measurements to the MQTT broker.
-// When significant changes occur in the measurements, then these will be published
-// to the MQTT broker at all times, independent from this interval.
-#define PUBLISH_INTERVAL 4000
+// The minimal interval in seconds at which to forcibly publish measurements to the
+// MQTT broker. When significant changes occur in the measurements, then these will
+// be published to the MQTT broker at all times, independent from this interval.
+#define PUBLISH_INTERVAL 300
 
 #include <Arduino.h>
 #include "Data/Measurements.h"
@@ -50,39 +50,31 @@ typedef enum
 class DataController
 {
 public:
-    static DataController* Instance();
+    static DataController *Instance();
     void setup();
     void loop();
     void clearHistory();
     void setContainerHeight(int height);
-    bool isConfigured();    
-    static void handleMqttConnect(DoughMQTT* mqtt);
+    bool isConfigured();
+    static void handleMqttConnect(DoughMQTT *mqtt);
     static void handleMqttMessage(String &key, String &value);
 
 private:
     DataController();
-    static DataController* _instance;
+    static DataController *_instance;
+    DoughUI *_ui;
+    DoughMQTT *_mqtt;
+    DoughSensors *_sensors;
     Measurements _temperatureMeasurements;
-    Measurement _temperatureLastPublished;
-    void _publishTemperature();
     Measurements _humidityMeasurements;
-    Measurement _humidityLastPublished;
-    void _publishHumidity();
     Measurements _distanceMeasurements;
-    Measurement _distanceLastPublished;
-    void _publishDistance();
     DoughLogger _logger;
-    DoughUI* _ui;
-    DoughSensors* _sensors;
-    DoughMQTT* _mqtt;
     unsigned long _lastSample = 0;
-    unsigned long _lastPublish = 0;
     DoughSampleType _sampleType = SAMPLE_TEMPERATURE;
     int _sampleCounter = 0;
     int _containerHeight;
     bool _containerHeightSet;
     void _sample();
-    void _publish();
 };
 
 #endif

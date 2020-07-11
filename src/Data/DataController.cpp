@@ -6,9 +6,6 @@
 
 DataController *DataController::_instance = nullptr;
 
-/**
- * Fetch the DoughData singleton.
- */
 DataController *DataController::Instance()
 {
     if (DataController::_instance == nullptr)
@@ -18,9 +15,24 @@ DataController *DataController::Instance()
     return DataController::_instance;
 }
 
-DataController::DataController() : _temperatureMeasurements(TEMPERATURE_AVG_LOOKBACK),
-                                   _humidityMeasurements(HUMIDITY_AVG_LOOKBACK),
-                                   _distanceMeasurements(DISTANCE_AVG_LOOKBACK),
+DataController::DataController() : _temperatureMeasurements(
+                                       "temperature",
+                                       readTemperature,
+                                       TEMPERATURE_AVG_LOOKBACK,
+                                       TEMPERATURE_SIGNIFICANT_CHANGE,
+                                       PUBLISH_INTERVAL),
+                                   _humidityMeasurements(
+                                       "humidity",
+                                       readHumidity,
+                                       HUMIDITY_AVG_LOOKBACK,
+                                       HUMIDITY_SIGNIFICANT_CHANGE,
+                                       PUBLISH_INTERVAL),
+                                   _distanceMeasurements(
+                                       "distance",
+                                       readDistance,
+                                       DISTANCE_AVG_LOOKBACK,
+                                       DISTANCE_SIGNIFICANT_CHANGE,
+                                       PUBLISH_INTERVAL),
                                    _logger("DATA")
 {
     _ui = DoughUI::Instance();
@@ -100,7 +112,6 @@ void DataController::loop()
     if (isConfigured())
     {
         _sample();
-        _publish();
     }
 }
 
@@ -135,52 +146,18 @@ void DataController::_sample()
         _ui->suspend();
 
         // Take a sample.
-        Measurement m;
         switch (_sampleType)
         {
         case SAMPLE_TEMPERATURE:
-            m = _sensors->readTemperature();
-            _temperatureMeasurements.add(m);
-            if (_temperatureLastPublished.ok && m.ok && _temperatureLastPublished.value != m.value)
-            {
-                if (m.value == _temperatureMeasurements.getAverage().value ||
-                    abs(_temperatureLastPublished.value - m.value) > TEMPERATURE_SIGNIFICANT_CHANGE) {
-                    _publishTemperature();
-                }
-            }
-            else if (_temperatureLastPublished.ok == false && m.ok) {
-                _publishTemperature();
-            }
+            _temperatureMeasurements.process();
             _sampleType = SAMPLE_HUMIDITY;
             break;
         case SAMPLE_HUMIDITY:
-            m = _sensors->readHumidity();
-            _humidityMeasurements.add(m);
-            if (_humidityLastPublished.ok && m.ok && _humidityLastPublished.value != m.value)
-            {
-                if (m.value == _humidityMeasurements.getAverage().value ||
-                    abs(_humidityLastPublished.value - m.value) > HUMIDITY_SIGNIFICANT_CHANGE) {
-                    _publishHumidity();
-                }
-            }
-            else if (_humidityLastPublished.ok == false && m.ok) {
-                _publishHumidity();
-            }
+            _humidityMeasurements.process();
             _sampleType = SAMPLE_DISTANCE;
             break;
         case SAMPLE_DISTANCE:
-            m = _sensors->readDistance();
-            _distanceMeasurements.add(m);
-            if (_distanceLastPublished.ok && m.ok && _distanceLastPublished.value != m.value)
-            {
-                if (m.value == _distanceMeasurements.getAverage().value ||
-                    abs(_distanceLastPublished.value - m.value) > DISTANCE_SIGNIFICANT_CHANGE) {
-                    _publishDistance();
-                }
-            }
-            else if (_distanceLastPublished.ok == false && m.ok) {
-                _publishDistance();
-            }
+            _distanceMeasurements.process();
             break;
         }
 
@@ -193,43 +170,4 @@ void DataController::_sample()
             _sampleType = SAMPLE_TEMPERATURE;
         }
     }
-}
-
-void DataController::_publish()
-{
-    if (_lastPublish == 0 || millis() - _lastPublish > PUBLISH_INTERVAL)
-    {
-        _lastPublish = millis();
-        _publishTemperature();
-        _publishHumidity();
-        _publishDistance();
-        _ui->led1.dip()->fast();
-    }
-}
-
-void DataController::_publishTemperature()
-{
-    auto m = _temperatureMeasurements.getLast();
-    _temperatureLastPublished.ok = m.ok;
-    _temperatureLastPublished.value = m.value;
-    _mqtt->publish("temperature", m);
-    _mqtt->publish("temperature/average", _temperatureMeasurements.getAverage());
-}
-
-void DataController::_publishHumidity()
-{
-    auto m = _humidityMeasurements.getLast();
-    _humidityLastPublished.ok = m.ok;
-    _humidityLastPublished.value = m.value;
-    _mqtt->publish("humidity", _humidityMeasurements.getLast());
-    _mqtt->publish("humidity/average", _humidityMeasurements.getAverage());
-}
-
-void DataController::_publishDistance()
-{
-    auto m = _distanceMeasurements.getLast();
-    _distanceLastPublished.ok = m.ok;
-    _distanceLastPublished.value = m.value;
-    _mqtt->publish("distance", _distanceMeasurements.getLast());
-    _mqtt->publish("distance/average", _distanceMeasurements.getAverage());
 }

@@ -19,7 +19,7 @@ public:
     void log(const char *fmt, ...);
 
 private:
-    const char* _section;
+    const char *_section;
 };
 
 #endif

@@ -6,9 +6,6 @@
 
 DoughWiFi *DoughWiFi::_instance = nullptr;
 
-/**
- * Fetch the DoughWiFi singleton.
- */
 DoughWiFi *DoughWiFi::Instance()
 {
     if (DoughWiFi::_instance == nullptr)

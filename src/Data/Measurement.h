@@ -13,6 +13,8 @@ public:
     bool ok = false;
     static Measurement Failed();
     static Measurement Value(int value);
+    void clear();
+    void copyTo(Measurement *target);
 };
 
 #endif

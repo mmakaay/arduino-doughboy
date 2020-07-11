@@ -2,7 +2,7 @@
 #define HCSR04_H
 
 // The minimum and maximum distance that can be measured in mm.
-// This is based on the specifications of the HCSR04 sensor.  
+// This is based on the specifications of the HCSR04 sensor.
 #define HCSR04_MIN_MM 40
 #define HCSR04_MAX_MM 4000
 
@@ -31,30 +31,31 @@
 /**
  * This class is used to get a distance reading from an HCSR04 sensor.
  */
-class HCSR04 {
-    public:
-        HCSR04(int triggerPin, int echoPin);
-        void begin();
-        void setTemperature(int temperature);
-        void setHumidity(int humidity);
-        int readDistance();
-        
-    private:
-        int _triggerPin;
-        int _echoPin;
-        int _humidity;
-        int _temperature;
-        void _setSpeedOfSound();
-        float _speedOfSound;
-        void _setEchoTimeout();
-        int _echoTimeout;
-        float _samples[HCSR04_SAMPLES_TAKE];
-        void _takeSamples();
-        bool _haveEnoughSamples();
-        int _takeSample();
-        int _successfulSamples;
-        void _sortSamples();
-        int _computeAverage();
+class HCSR04
+{
+public:
+    HCSR04(int triggerPin, int echoPin);
+    void begin();
+    void setTemperature(int temperature);
+    void setHumidity(int humidity);
+    int readDistance();
+
+private:
+    int _triggerPin;
+    int _echoPin;
+    int _humidity;
+    int _temperature;
+    void _setSpeedOfSound();
+    float _speedOfSound;
+    void _setEchoTimeout();
+    int _echoTimeout;
+    float _samples[HCSR04_SAMPLES_TAKE];
+    void _takeSamples();
+    bool _haveEnoughSamples();
+    int _takeSample();
+    int _successfulSamples;
+    void _sortSamples();
+    int _computeAverage();
 };
-        
+
 #endif

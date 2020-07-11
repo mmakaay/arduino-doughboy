@@ -15,3 +15,15 @@ Measurement Measurement::Value(int value)
     m.value = value;
     return m;
 }
+
+void Measurement::clear()
+{
+    ok = false;
+    value = 0;
+}
+
+void Measurement::copyTo(Measurement* target)
+{
+    target->ok = ok;
+    target->value = value;
+}
