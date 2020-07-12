@@ -3,17 +3,15 @@
 
 #include <MQTT.h>
 #include <MQTTClient.h>
-#include "Network/DoughWiFi.h"
+#include "Network/WiFi.h"
 #include "Data/Measurement.h"
-#include "UI/DoughLogger.h"
+#include "UI/Logger.h"
 #include "config.h"
 
 namespace Dough
 {
-    /**
-     * This class encapsulates the connection to the MQTT broker.
-     * MQTT is used to publish measurements and to store configuration data.
-     */
+    // This class encapsulates the connection to the MQTT broker.
+    // MQTT is used to publish measurements and to store configuration data.
     class MQTT;
 
     typedef void (*MQTTConnectHandler)(MQTT *mqtt);
@@ -38,7 +36,7 @@ namespace Dough
         MQTT();
         static MQTT *_instance;
         MQTTClient _mqttClient;
-        DoughLogger _logger;
+        Logger _logger;
         MQTTConnectHandler _onConnect = nullptr;
         MQTTClientCallbackSimple _onMessage = nullptr;
         static void handleMessage(String &topic, String &payload);

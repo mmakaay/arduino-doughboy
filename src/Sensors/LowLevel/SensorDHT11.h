@@ -4,21 +4,22 @@
 #include <DHT.h>
 #include "config.h"
 
-/**
- * This class provides access to the DHT11 sensor in the device.
- */
-class SensorDHT11
+namespace Dough
 {
-public:
-    static SensorDHT11 *Instance();
-    void begin();
-    float readTemperature();
-    float readHumidity();
+    // This class provides access to the DHT11 sensor in the device.
+    class SensorDHT11
+    {
+    public:
+        static SensorDHT11 *Instance();
+        void begin();
+        float readTemperature();
+        float readHumidity();
 
-private:
-    SensorDHT11();
-    static SensorDHT11 *_instance;
-    DHT *_dht;
-};
+    private:
+        SensorDHT11();
+        static SensorDHT11 *_instance;
+        DHT *_dht;
+    };
+} // namespace Dough
 
 #endif

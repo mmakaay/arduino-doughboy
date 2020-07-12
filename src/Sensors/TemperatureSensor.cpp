@@ -1,47 +1,50 @@
 #include "TemperatureSensor.h"
 
-// ----------------------------------------------------------------------
-// Constructor
-// ----------------------------------------------------------------------
-
-TemperatureSensor *TemperatureSensor::_instance = nullptr;
-
-TemperatureSensor *TemperatureSensor::Instance()
+namespace Dough
 {
-    if (TemperatureSensor::_instance == nullptr)
+    // ----------------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------------
+
+    TemperatureSensor *TemperatureSensor::_instance = nullptr;
+
+    TemperatureSensor *TemperatureSensor::Instance()
     {
-        TemperatureSensor::_instance = new TemperatureSensor();
+        if (TemperatureSensor::_instance == nullptr)
+        {
+            TemperatureSensor::_instance = new TemperatureSensor();
+        }
+        return TemperatureSensor::_instance;
     }
-    return TemperatureSensor::_instance;
-}
 
-TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
+    TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
 
-// ----------------------------------------------------------------------
-// setup
-// ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // setup
+    // ----------------------------------------------------------------------
 
-void TemperatureSensor::setup()
-{
-    SensorDHT11::Instance()->begin();
-}
-
-// ----------------------------------------------------------------------
-// loop
-// ----------------------------------------------------------------------
-
-Measurement TemperatureSensor::read()
-{
-    float t = SensorDHT11::Instance()->readTemperature();
-    if (isnan(t))
+    void TemperatureSensor::setup()
     {
-        _logger.log("s", "ERROR - Temperature measurement failed");
-        return Measurement::Failed();
+        SensorDHT11::Instance()->begin();
     }
-    else
+
+    // ----------------------------------------------------------------------
+    // loop
+    // ----------------------------------------------------------------------
+
+    Measurement TemperatureSensor::read()
     {
-        _logger.log("sis", "Temperature = ", int(t), "°C");
-        DistanceSensor::Instance()->setTemperature(int(t));
-        return Measurement::Value(int(t));
+        float t = SensorDHT11::Instance()->readTemperature();
+        if (isnan(t))
+        {
+            _logger.log("s", "ERROR - Temperature measurement failed");
+            return Measurement::Failed();
+        }
+        else
+        {
+            _logger.log("sis", "Temperature = ", int(t), "°C");
+            DistanceSensor::Instance()->setTemperature(int(t));
+            return Measurement::Value(int(t));
+        }
     }
-}
+} // namespace Dough

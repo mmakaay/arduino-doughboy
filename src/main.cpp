@@ -8,17 +8,18 @@
 // TODO: make significantChange part of sensor class?
 
 DoughBoyState state = CONFIGURING;
-auto logger = DoughLogger("MAIN");
+auto logger = Dough::Logger("MAIN");
 
 void setup()
 {
-    TemperatureSensor::Instance()->setup();
-    HumiditySensor::Instance()->setup();
-    DistanceSensor::Instance()->setup();
-    DoughWiFi::Instance()->setup();
+    logger.log("s", "Initializing device");
+    Dough::TemperatureSensor::Instance()->setup();
+    Dough::HumiditySensor::Instance()->setup();
+    Dough::DistanceSensor::Instance()->setup();
+    Dough::WiFi::Instance()->setup();
     Dough::MQTT::Instance()->setup();
-    DataController::Instance()->setup();
-    auto ui = DoughUI::Instance();
+    Dough::DataController::Instance()->setup();
+    auto ui = Dough::UI::Instance();
     ui->setup();
     ui->onoffButton.onPress(handleOnoffButtonPress);
     ui->setupButton.onPress(handleSetupButtonPress);
@@ -27,8 +28,8 @@ void setup()
 
 void loop()
 {
-    auto ui = DoughUI::Instance();
-    auto data = DataController::Instance();
+    auto ui = Dough::UI::Instance();
+    auto data = Dough::DataController::Instance();
     auto mqtt = Dough::MQTT::Instance();
 
     ui->processButtonEvents();
@@ -50,7 +51,7 @@ void loop()
     }
     else if (state == MEASURING)
     {
-        DataController::Instance()->loop();
+        Dough::DataController::Instance()->loop();
     }
     else if (state == CALIBRATING)
     {
@@ -59,21 +60,19 @@ void loop()
     }
     else if (state == PAUSED)
     {
-        DataController::Instance()->clearHistory();
+        Dough::DataController::Instance()->clearHistory();
     }
 }
 
-/**
- * Check if the device is connected to the WiFi network and the MQTT broker.
- * If not, then try to setup the connection.
- * Returns true if the connection was established, false otherwise.
- */
+// Check if the device is connected to the WiFi network and the MQTT broker.
+// If not, then try to setup the connection.
+// Returns true if the connection was established, false otherwise.
 bool setupNetworkConnection()
 {
     static auto connectionState = CONNECTING_WIFI;
 
-    auto ui = DoughUI::Instance();
-    auto network = DoughWiFi::Instance();
+    auto ui = Dough::UI::Instance();
+    auto network = Dough::WiFi::Instance();
     auto mqtt = Dough::MQTT::Instance();
 
     if (!network->isConnected())
@@ -144,7 +143,7 @@ void handleSetupButtonPress()
 
 void setStateToConfiguring()
 {
-    auto ui = DoughUI::Instance();
+    auto ui = Dough::UI::Instance();
     logger.log("s", "Waiting for configuration ...");
     state = CONFIGURING;
     ui->led1.on();
@@ -155,7 +154,7 @@ void setStateToConfiguring()
 
 void setStateToMeasuring()
 {
-    auto ui = DoughUI::Instance();
+    auto ui = Dough::UI::Instance();
     logger.log("s", "Starting measurements");
     state = MEASURING;
     ui->led1.on();
@@ -166,7 +165,7 @@ void setStateToMeasuring()
 
 void setStateToPaused()
 {
-    auto ui = DoughUI::Instance();
+    auto ui = Dough::UI::Instance();
     logger.log("s", "Pausing measurements");
     state = PAUSED;
     ui->led1.on();
@@ -177,7 +176,7 @@ void setStateToPaused()
 
 void setStateToCalibrating()
 {
-    auto ui = DoughUI::Instance();
+    auto ui = Dough::UI::Instance();
     logger.log("s", "Requested device calibration");
     state = CALIBRATING;
     ui->led1.on();

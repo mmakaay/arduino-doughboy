@@ -3,14 +3,15 @@
 
 #include "Data/Measurement.h"
 
-/**
- * This interface is implemented by all sensors.
- */
-class SensorBase
+namespace Dough
 {
-public:
-    virtual void setup();
-    virtual Measurement read();
-};
+    // This interface is implemented by all sensors.
+    class SensorBase
+    {
+    public:
+        virtual void setup();
+        virtual Measurement read();
+    };
+}
 
 #endif

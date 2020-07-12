@@ -1,4 +1,4 @@
-#include "MQTT.h"
+#include "Network/MQTT.h"
 
 namespace Dough
 {
@@ -26,7 +26,7 @@ namespace Dough
 
     void MQTT::setup()
     {
-        DoughWiFi *network = DoughWiFi::Instance();
+        WiFi *network = WiFi::Instance();
 
 #ifdef MQTT_DEVICE_ID
         _mqttDeviceId = MQTT_DEVICE_ID;

@@ -5,11 +5,11 @@
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/HumiditySensor.h"
 #include "Sensors/DistanceSensor.h"
-#include "Network/DoughWiFi.h"
+#include "Network/WiFi.h"
 #include "Network/MQTT.h"
 #include "Data/DataController.h"
-#include "UI/DoughButton.h"
-#include "UI/DoughUI.h"
+#include "UI/Button.h"
+#include "UI/UI.h"
 #include "config.h"
 
 typedef enum

@@ -12,27 +12,27 @@
 
 #include <Arduino.h>
 #include <stdarg.h>
-#include "UI/DoughButton.h"
-#include "UI/DoughLED.h"
+#include "UI/Button.h"
+#include "UI/LED.h"
 #include "config.h"
 
-/**
- * This class groups all user interface functionality: serial logging,
- * LEDs and buttons.
- */
-class DoughUI
+namespace Dough
+{
+// This class groups all user interface functionality: serial logging,
+// LEDs and buttons.
+class UI
 {
 public:
-    static DoughUI *Instance();
+    static UI *Instance();
     void setup();
     static void onoffButtonISR();
     static void setupButtonISR();
-    DoughButton onoffButton;
-    DoughButton setupButton;
-    DoughLED ledBuiltin;
-    DoughLED led1;
-    DoughLED led2;
-    DoughLED led3;
+    Button onoffButton;
+    Button setupButton;
+    LED ledBuiltin;
+    LED led1;
+    LED led2;
+    LED led3;
     void processButtonEvents();
     void clearButtonEvents();
     void updatedLEDs();
@@ -40,10 +40,11 @@ public:
     void suspend();
 
 private:
-    DoughUI();
+    UI();
     void _setupTimerInterrupt();
-    static DoughUI *_instance;
+    static UI *_instance;
     void _flash_all_leds();
 };
+}
 
 #endif

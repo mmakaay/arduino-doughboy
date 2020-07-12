@@ -1,29 +1,32 @@
 #include "Data/Measurement.h"
 
-Measurement::Measurement() { }
-
-Measurement Measurement::Failed()
+namespace Dough
 {
-    Measurement m;
-    return m;
-}
+    Measurement::Measurement() {}
 
-Measurement Measurement::Value(int value)
-{
-    Measurement m;
-    m.ok = true;
-    m.value = value;
-    return m;
-}
+    Measurement Measurement::Failed()
+    {
+        Measurement m;
+        return m;
+    }
 
-void Measurement::clear()
-{
-    ok = false;
-    value = 0;
-}
+    Measurement Measurement::Value(int value)
+    {
+        Measurement m;
+        m.ok = true;
+        m.value = value;
+        return m;
+    }
 
-void Measurement::copyTo(Measurement* target)
-{
-    target->ok = ok;
-    target->value = value;
-}
+    void Measurement::clear()
+    {
+        ok = false;
+        value = 0;
+    }
+
+    void Measurement::copyTo(Measurement *target)
+    {
+        target->ok = ok;
+        target->value = value;
+    }
+} // namespace Dough

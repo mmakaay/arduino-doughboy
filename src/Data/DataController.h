@@ -28,54 +28,55 @@
 #define PUBLISH_INTERVAL 300
 
 #include <Arduino.h>
-#include "Data/Measurements.h"
+#include "Data/SensorController.h"
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/HumiditySensor.h"
 #include "Sensors/DistanceSensor.h"
-#include "Network/DoughWiFi.h"
+#include "Network/WiFi.h"
 #include "Network/MQTT.h"
-#include "UI/DoughUI.h"
-#include "UI/DoughLogger.h"
+#include "UI/UI.h"
+#include "UI/Logger.h"
 
-typedef enum
+namespace Dough
 {
-    SAMPLE_TEMPERATURE,
-    SAMPLE_HUMIDITY,
-    SAMPLE_DISTANCE
-} DoughSampleType;
+    typedef enum
+    {
+        SAMPLE_TEMPERATURE,
+        SAMPLE_HUMIDITY,
+        SAMPLE_DISTANCE
+    } DoughSampleType;
 
-/**
- * This class is responsible for handling all things "data".
- * It holds the device configuration, collects measurements from sensors,
- * gathers statistics on these data, and publishing results to the MQTT broker.
- */
-class DataController
-{
-public:
-    static DataController *Instance();
-    void setup();
-    void loop();
-    void clearHistory();
-    void setContainerHeight(int height);
-    bool isConfigured();
-    static void handleMqttConnect(Dough::MQTT *mqtt);
-    static void handleMqttMessage(String &key, String &value);
+    // This class is responsible for handling all things "data".
+    // It holds the device configuration, collects measurements from sensors,
+    // gathers statistics on these data, and publishing results to the MQTT broker.
+    class DataController
+    {
+    public:
+        static DataController *Instance();
+        void setup();
+        void loop();
+        void clearHistory();
+        void setContainerHeight(int height);
+        bool isConfigured();
+        static void handleMqttConnect(MQTT *mqtt);
+        static void handleMqttMessage(String &key, String &value);
 
-private:
-    DataController();
-    static DataController *_instance;
-    DoughUI *_ui;
-    Dough::MQTT *_mqtt;
-    Measurements _temperatureMeasurements;
-    Measurements _humidityMeasurements;
-    Measurements _distanceMeasurements;
-    DoughLogger _logger;
-    unsigned long _lastSample = 0;
-    DoughSampleType _sampleType = SAMPLE_TEMPERATURE;
-    int _sampleCounter = 0;
-    int _containerHeight;
-    bool _containerHeightSet;
-    void _sample();
-};
+    private:
+        DataController();
+        static DataController *_instance;
+        UI *_ui;
+        MQTT *_mqtt;
+        SensorController _temperatureMeasurements;
+        SensorController _humidityMeasurements;
+        SensorController _distanceMeasurements;
+        Logger _logger;
+        unsigned long _lastSample = 0;
+        DoughSampleType _sampleType = SAMPLE_TEMPERATURE;
+        int _sampleCounter = 0;
+        int _containerHeight;
+        bool _containerHeightSet;
+        void _sample();
+    };
+} // namespace Dough
 
 #endif

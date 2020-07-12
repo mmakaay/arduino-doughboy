@@ -3,25 +3,26 @@
 
 #include "Sensors/SensorBase.h"
 #include "Sensors/LowLevel/SensorDHT11.h"
-#include "UI/DoughLogger.h"
+#include "UI/Logger.h"
 #include "Data/Measurement.h"
 #include "Sensors/DistanceSensor.h"
 #include "config.h"
 
-/**
- * This class provides access to the humidity sensor in the device.
- */
-class HumiditySensor : public SensorBase
+namespace Dough
 {
-public:
-    static HumiditySensor *Instance();
-    virtual void setup();
-    virtual Measurement read();
+    // This class provides access to the humidity sensor in the device.
+    class HumiditySensor : public SensorBase
+    {
+    public:
+        static HumiditySensor *Instance();
+        virtual void setup();
+        virtual Measurement read();
 
-private:
-    HumiditySensor();
-    static HumiditySensor *_instance;
-    DoughLogger _logger;
-};
+    private:
+        HumiditySensor();
+        static HumiditySensor *_instance;
+        Logger _logger;
+    };
+} // namespace Dough
 
 #endif
