@@ -62,6 +62,6 @@ namespace Dough
         void _sortSamples();
         int _computeAverage();
     };
-} // namespace Dough
+}
 
 #endif

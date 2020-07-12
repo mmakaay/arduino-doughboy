@@ -20,6 +20,6 @@ namespace Dough
         static SensorDHT11 *_instance;
         DHT *_dht;
     };
-} // namespace Dough
+}
 
 #endif

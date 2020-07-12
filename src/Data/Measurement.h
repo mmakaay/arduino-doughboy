@@ -16,6 +16,6 @@ namespace Dough
         void clear();
         void copyTo(Measurement *target);
     };
-} // namespace Dough
+}
 
 #endif

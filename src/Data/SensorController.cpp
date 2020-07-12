@@ -162,4 +162,4 @@ namespace Dough
             _storage[i]->clear();
         }
     }
-} // namespace Dough
+}

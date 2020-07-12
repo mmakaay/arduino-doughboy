@@ -25,6 +25,6 @@ namespace Dough
         Logger _logger;
         SensorHCSR04 *_hcsr04;
     };
-} // namespace Dough
+}
 
 #endif

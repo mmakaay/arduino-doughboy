@@ -54,6 +54,6 @@ namespace Dough
         int _brightness;
         int _pulseStep;
     };
-} // namespace Dough
+}
 
 #endif

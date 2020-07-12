@@ -77,6 +77,6 @@ namespace Dough
         bool _containerHeightSet;
         void _sample();
     };
-} // namespace Dough
+}
 
 #endif

@@ -43,6 +43,6 @@ namespace Dough
         char *_mqttDeviceId;
     };
 
-} // namespace Dough
+}
 
 #endif

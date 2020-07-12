@@ -29,4 +29,4 @@ namespace Dough
         target->ok = ok;
         target->value = value;
     }
-} // namespace Dough
+}

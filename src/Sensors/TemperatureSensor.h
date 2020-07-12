@@ -23,6 +23,6 @@ namespace Dough
         static TemperatureSensor *_instance;
         Logger _logger;
     };
-} // namespace Dough
+}
 
 #endif

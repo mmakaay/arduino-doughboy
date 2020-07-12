@@ -26,6 +26,6 @@ namespace Dough
         char _macAddress[18]; // max MAC address length + 1
         Logger _logger;
     };
-} // namespace Dough
+}
 
 #endif

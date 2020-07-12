@@ -49,6 +49,6 @@ namespace Dough
         unsigned long _debounceTimer = 0;
         ButtonState _state = UP;
     };
-} // namespace Dough
+}
 
 #endif

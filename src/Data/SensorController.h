@@ -60,6 +60,6 @@ namespace Dough
         void _store(Measurement measurement);
         unsigned int _next();
     };
-} // namespace Dough
+}
 
 #endif

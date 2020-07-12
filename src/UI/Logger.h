@@ -24,6 +24,6 @@ namespace Dough
         const char *_section;
         bool _suspended = false;
     };
-} // namespace Dough
+}
 
 #endif

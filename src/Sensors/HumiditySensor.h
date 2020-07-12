@@ -23,6 +23,6 @@ namespace Dough
         static HumiditySensor *_instance;
         Logger _logger;
     };
-} // namespace Dough
+}
 
 #endif

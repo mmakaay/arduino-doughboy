@@ -59,4 +59,4 @@ namespace Dough
             return Measurement::Value(d);
         }
     }
-} // namespace Dough
+}

@@ -169,7 +169,7 @@ namespace Dough
         delay(100);
         led3.off();
     }
-} // namespace Dough
+}
 
 // This callback is called when the TC4 timer hits an overflow interrupt.
 // Defined outside the Dough namespace, because TC4_Handler is a hard-coded

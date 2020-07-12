@@ -149,4 +149,4 @@ namespace Dough
 
         return round(sum / HCSR04_SAMPLES_USE);
     }
-} // namespace Dough
+}

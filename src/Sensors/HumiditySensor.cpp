@@ -47,4 +47,4 @@ namespace Dough
             return Measurement::Value(int(t));
         }
     }
-} // namespace Dough
+}

@@ -44,4 +44,4 @@ namespace Dough
     {
         return _dht->readTemperature();
     }
-} // namespace Dough
+}
