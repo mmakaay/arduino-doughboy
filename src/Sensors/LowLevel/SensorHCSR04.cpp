@@ -4,6 +4,7 @@ namespace Dough
 {
     SensorHCSR04::SensorHCSR04(int triggerPin, int echoPin) : _logger("HCSR04")
     {
+        precision = 3;
         _triggerPin = triggerPin;
         _echoPin = echoPin;
         _temperature = HCSR04_INIT_TEMPERATURE;

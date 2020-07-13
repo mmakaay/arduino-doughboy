@@ -6,15 +6,10 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    HumiditySensor *HumiditySensor::_instance = nullptr;
-
     HumiditySensor *HumiditySensor::Instance()
     {
-        if (HumiditySensor::_instance == nullptr)
-        {
-            HumiditySensor::_instance = new HumiditySensor();
-        }
-        return HumiditySensor::_instance;
+        static HumiditySensor *_instance = new HumiditySensor();
+        return _instance;
     }
 
     HumiditySensor::HumiditySensor() : _logger("HUMIDITY") {}
@@ -47,4 +42,9 @@ namespace Dough
             return Measurement::Value(int(t));
         }
     }
+
+    unsigned int HumiditySensor::getPrecision()
+    {
+        return 2; // prevent flapping when transitioning from value A to value B
+    }    
 }

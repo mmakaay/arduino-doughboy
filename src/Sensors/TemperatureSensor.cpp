@@ -6,15 +6,10 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    TemperatureSensor *TemperatureSensor::_instance = nullptr;
-
     TemperatureSensor *TemperatureSensor::Instance()
     {
-        if (TemperatureSensor::_instance == nullptr)
-        {
-            TemperatureSensor::_instance = new TemperatureSensor();
-        }
-        return TemperatureSensor::_instance;
+        static TemperatureSensor *_instance = new TemperatureSensor();
+        return _instance;
     }
 
     TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
@@ -47,4 +42,9 @@ namespace Dough
             return Measurement::Value(int(t));
         }
     }
-}
+
+    unsigned int TemperatureSensor::getPrecision()
+    {
+        return 2; // prevent flapping when transitioning from value A to value B
+    }
+} // namespace Dough

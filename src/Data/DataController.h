@@ -16,12 +16,6 @@
 #define HUMIDITY_AVG_LOOKBACK 6          // making this a 3 minute average
 #define DISTANCE_AVG_LOOKBACK 28 * 2 * 3 // making this a 3 minute average
 
-// When significant changes occur in the sensor measurements, they are
-// published to MQTT. These definitions specify what is considered significant.
-#define TEMPERATURE_SIGNIFICANT_CHANGE 2 // to dampen flapping between two values on transition
-#define HUMIDITY_SIGNIFICANT_CHANGE 2    // also to dampen flapping behavior.
-#define DISTANCE_SIGNIFICANT_CHANGE 3    // based on the sensor specification of 3mm resolution
-
 // The minimal interval in seconds at which to forcibly publish measurements to the
 // MQTT broker. When significant changes occur in the measurements, then these will
 // be published to the MQTT broker at all times, independent from this interval.
@@ -63,7 +57,6 @@ namespace Dough
 
     private:
         DataController();
-        static DataController *_instance;
         UI *_ui;
         MQTT *_mqtt;
         SensorController _temperatureMeasurements;

@@ -17,7 +17,6 @@ namespace Dough
 
     private:
         SensorDHT11();
-        static SensorDHT11 *_instance;
         DHT *_dht;
     };
 }

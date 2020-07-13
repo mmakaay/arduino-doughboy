@@ -34,7 +34,6 @@ namespace Dough
 
     private:
         MQTT();
-        static MQTT *_instance;
         MQTTClient _mqttClient;
         Logger _logger;
         MQTTConnectHandler _onConnect = nullptr;

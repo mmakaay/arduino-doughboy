@@ -6,15 +6,13 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    SensorDHT11 *SensorDHT11::_instance = nullptr;
-
+    // I am using a singleton here, to make it possible to use the physical
+    // DHT11 sensor from the two logical sensors TemperatureSensor and
+    // HumiditySensor.
     SensorDHT11 *SensorDHT11::Instance()
     {
-        if (SensorDHT11::_instance == nullptr)
-        {
-            SensorDHT11::_instance = new SensorDHT11();
-        }
-        return SensorDHT11::_instance;
+        static SensorDHT11 *_instance = new SensorDHT11();
+        return _instance;
     }
 
     SensorDHT11::SensorDHT11()

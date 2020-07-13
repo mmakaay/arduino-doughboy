@@ -11,6 +11,7 @@ namespace Dough
     public:
         virtual void setup();
         virtual Measurement read();
+        virtual unsigned int getPrecision();
     };
 }
 

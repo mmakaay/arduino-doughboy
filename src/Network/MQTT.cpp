@@ -7,15 +7,10 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    MQTT *MQTT::_instance = nullptr;
-
     MQTT *MQTT::Instance()
     {
-        if (MQTT::_instance == nullptr)
-        {
-            MQTT::_instance = new MQTT();
-        }
-        return MQTT::_instance;
+        static MQTT *_instance = new MQTT();
+        return _instance;
     }
 
     MQTT::MQTT() : _logger("MQTT") {}
@@ -81,6 +76,8 @@ namespace Dough
 
     void MQTT::procesIncomingsMessages()
     {
+        // Calling loop() on the wrapped MQTT client, will fetch the
+        // incoming messages and distribute them to the onMessage callback.
         _mqttClient.loop();
     }
 

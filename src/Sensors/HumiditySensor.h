@@ -17,10 +17,10 @@ namespace Dough
         static HumiditySensor *Instance();
         virtual void setup();
         virtual Measurement read();
+        virtual unsigned int getPrecision();
 
     private:
         HumiditySensor();
-        static HumiditySensor *_instance;
         Logger _logger;
     };
 }

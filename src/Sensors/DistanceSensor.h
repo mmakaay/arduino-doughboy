@@ -14,14 +14,14 @@ namespace Dough
     {
     public:
         static DistanceSensor *Instance();
-        virtual void setup();
-        virtual Measurement read();
         void setTemperature(int temperature);
         void setHumidity(int humidity);
+        virtual void setup();
+        virtual Measurement read();
+        virtual unsigned int getPrecision();
 
     private:
         DistanceSensor();
-        static DistanceSensor *_instance;
         Logger _logger;
         SensorHCSR04 *_hcsr04;
     };

@@ -17,10 +17,10 @@ namespace Dough
         static TemperatureSensor *Instance();
         virtual void setup();
         virtual Measurement read();
+        virtual unsigned int getPrecision();
 
     private:
         TemperatureSensor();
-        static TemperatureSensor *_instance;
         Logger _logger;
     };
 }

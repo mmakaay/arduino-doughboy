@@ -21,7 +21,6 @@ namespace Dough
 
     private:
         WiFi();
-        static WiFi *_instance;
         void _setMacAddress();
         char _macAddress[18]; // max MAC address length + 1
         Logger _logger;

@@ -3,6 +3,7 @@
 namespace Dough
 {
     // Constructor for a button instance.
+    //
     // As a necessary evil, because of the way attachinterrupt() works in
     // Arduino, construction needs a bit of extra work to get the button
     // working. An interrupt service routine (ISR) function must be created

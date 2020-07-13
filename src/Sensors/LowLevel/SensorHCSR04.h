@@ -43,6 +43,7 @@ namespace Dough
         void setTemperature(int temperature);
         void setHumidity(int humidity);
         int readDistance();
+        int precision;
 
     private:
         Logger _logger;

@@ -7,15 +7,16 @@ namespace Dough
         const char *mqttKey,
         SensorBase *sensor,
         unsigned int storageSize,
-        unsigned int significantChange,
+        unsigned int minimumMeasureTime,
         unsigned int minimumPublishTime)
     {
         _mqttKey = mqttKey;
         _sensor = sensor;
         _storageSize = storageSize;
-        _significantChange = significantChange;
+        _minimumMeasureTime = minimumMeasureTime;
         _minimumPublishTime = minimumPublishTime;
         _mqtt = MQTT::Instance();
+        _ui = UI::Instance();
     }
 
     void SensorController::setup()
@@ -34,14 +35,50 @@ namespace Dough
         clearHistory();
     }
 
-    void SensorController::process()
+    void SensorController::loop()
     {
-        auto m = _sensor->read();
-        _store(m);
+        if (_mustMeasure())
+        {
+            _measure();
+        }
         if (_mustPublish())
         {
             _publish();
         }
+    }
+
+    bool SensorController::_mustMeasure()
+    {
+        // When no measurement was done yet, then do one now.
+        if (_lastMeasuredAt == 0)
+        {
+            return true;
+        }
+
+        // When enough time has passed since the last measurement,
+        // then start another measurement.
+        auto now = millis();
+        auto delta = now - _lastMeasuredAt;
+        return delta >= (_minimumMeasureTime * 1000);
+    }
+
+    void SensorController::_measure()
+    {
+        _lastMeasuredAt = millis();
+        
+        // Quickly dip the LED to indicate that a measurement has started.
+        // This is done synchroneously, because we suspend the timer interrupts
+        // in the upcoming code.
+        _ui->led3.off();
+        delay(50);
+        _ui->led3.on();
+
+        // Read a measurement from the sensor. Suspend the user interface
+        // interrupts in the meanwhile, to not disturb the timing-sensitive
+        // sensor readings.
+        _ui->suspend();
+        _store(_sensor->read());
+        _ui->resume();
     }
 
     bool SensorController::_mustPublish()
@@ -69,8 +106,10 @@ namespace Dough
             return _lastPublishedAt == 0 || delta >= (_minimumPublishTime * 1000);
         }
 
+        auto precision = _sensor->getPrecision();
+
         // When there is a significant change in the sensor value, then publish.
-        if (abs(_lastPublished.value - lastMeasurement.value) >= _significantChange)
+        if (abs(_lastPublished.value - lastMeasurement.value) >= precision)
         {
             return true;
         }
@@ -78,7 +117,7 @@ namespace Dough
         auto average = getAverage();
 
         // When there is a significant change in the average value, then publish.
-        if (average.ok && abs(_lastPublishedAverage.value - average.value) >= _significantChange)
+        if (average.ok && abs(_lastPublishedAverage.value - average.value) >= precision)
         {
             return true;
         }
@@ -162,4 +201,4 @@ namespace Dough
             _storage[i]->clear();
         }
     }
-}
+} // namespace Dough

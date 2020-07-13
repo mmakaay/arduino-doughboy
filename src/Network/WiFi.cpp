@@ -6,15 +6,10 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    WiFi *WiFi::_instance = nullptr;
-
     WiFi *WiFi::Instance()
     {
-        if (WiFi::_instance == nullptr)
-        {
-            WiFi::_instance = new WiFi();
-        }
-        return WiFi::_instance;
+        static WiFi *_instance = new WiFi();
+        return _instance;
     }
 
     WiFi::WiFi() : _logger("WIFI") {}

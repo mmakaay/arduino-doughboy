@@ -6,15 +6,10 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    DistanceSensor *DistanceSensor::_instance = nullptr;
-
     DistanceSensor *DistanceSensor::Instance()
     {
-        if (DistanceSensor::_instance == nullptr)
-        {
-            DistanceSensor::_instance = new DistanceSensor();
-        }
-        return DistanceSensor::_instance;
+        static DistanceSensor *_instance = new DistanceSensor();
+        return _instance;
     }
 
     DistanceSensor::DistanceSensor() : _logger("DISTANCE")
@@ -59,4 +54,9 @@ namespace Dough
             return Measurement::Value(d);
         }
     }
+
+    unsigned int DistanceSensor::getPrecision()
+    {
+        return 3; // according to the sensor specifications
+    }    
 }

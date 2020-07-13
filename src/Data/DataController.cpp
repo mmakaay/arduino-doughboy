@@ -6,34 +6,29 @@ namespace Dough
     // Constructor
     // ----------------------------------------------------------------------
 
-    DataController *DataController::_instance = nullptr;
-
     DataController *DataController::Instance()
     {
-        if (DataController::_instance == nullptr)
-        {
-            DataController::_instance = new DataController();
-        }
-        return DataController::_instance;
+        static DataController *_instance = new DataController();
+        return _instance;
     }
 
     DataController::DataController() : _temperatureMeasurements(
                                            "temperature",
                                            TemperatureSensor::Instance(),
                                            TEMPERATURE_AVG_LOOKBACK,
-                                           TEMPERATURE_SIGNIFICANT_CHANGE,
+                                           30,
                                            PUBLISH_INTERVAL),
                                        _humidityMeasurements(
                                            "humidity",
                                            HumiditySensor::Instance(),
                                            HUMIDITY_AVG_LOOKBACK,
-                                           HUMIDITY_SIGNIFICANT_CHANGE,
+                                           30,
                                            PUBLISH_INTERVAL),
                                        _distanceMeasurements(
                                            "distance",
                                            DistanceSensor::Instance(),
                                            DISTANCE_AVG_LOOKBACK,
-                                           DISTANCE_SIGNIFICANT_CHANGE,
+                                           1,
                                            PUBLISH_INTERVAL),
                                        _logger("DATA")
     {
@@ -114,7 +109,11 @@ namespace Dough
     {
         if (isConfigured())
         {
-            _sample();
+            _temperatureMeasurements.loop();
+            _humidityMeasurements.loop();
+            _distanceMeasurements.loop();
+            // Moved logic into sensor controller code.
+            //_sample();
         }
     }
 
@@ -137,7 +136,7 @@ namespace Dough
         {
             _lastSample = now;
 
-            // Quickly dip the LED to indicate that a measurement is started.
+            // Quickly dip the LED to indicate that a measurement has started.
             // This is done synchroneously, because we suspend the timer interrupts
             // in the upcoming code.
             _ui->led3.off();
@@ -152,15 +151,15 @@ namespace Dough
             switch (_sampleType)
             {
             case SAMPLE_TEMPERATURE:
-                _temperatureMeasurements.process();
+                _temperatureMeasurements.loop();
                 _sampleType = SAMPLE_HUMIDITY;
                 break;
             case SAMPLE_HUMIDITY:
-                _humidityMeasurements.process();
+                _humidityMeasurements.loop();
                 _sampleType = SAMPLE_DISTANCE;
                 break;
             case SAMPLE_DISTANCE:
-                _distanceMeasurements.process();
+                _distanceMeasurements.loop();
                 break;
             }
 
