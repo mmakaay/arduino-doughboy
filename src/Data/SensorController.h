@@ -1,5 +1,5 @@
-#ifndef DOUGH_DATA_MEASUREMENTS_H
-#define DOUGH_DATA_MEASUREMENTS_H
+#ifndef DOUGH_MEASUREMENTS_H
+#define DOUGH_MEASUREMENTS_H
 
 #include <Arduino.h>
 #include "Sensors/SensorBase.h"
@@ -19,6 +19,8 @@ namespace Dough
     public:
         // Create a new Measurements object.
         //
+        // @param mqtt
+        //     The Dough::MQTT object, which is connected to the MQTT broker.
         // @param mqttKey
         //     The key to use when publishing sensor values to MQTT.
         //     The full key will be "<prefix>/<mqttKey>" for measurement values
@@ -34,6 +36,7 @@ namespace Dough
         //     The number of seconds after which to forcibly publish measurements
         //     to MQTT, even when no significant changes to measurements were seen.
         SensorController(
+            MQTT *mqtt,
             const char *mqttKey,
             SensorBase *sensor,
             unsigned int storageSize,

@@ -1,5 +1,5 @@
-#ifndef DOUGH_SENSORS_DISTANCE_H
-#define DOUGH_SENSORS_DISTANCE_H
+#ifndef DOUGH_DISTANCE_SENSOR_H
+#define DOUGH_DISTANCE_SENSOR_H
 
 #include "Sensors/SensorBase.h"
 #include "Sensors/LowLevel/SensorHCSR04.h"

@@ -2,45 +2,26 @@
 
 namespace Dough
 {
-
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
-    MQTT *MQTT::Instance()
+    MQTT::MQTT(
+        WiFi *network,
+        MQTTConnectHandler onConnect,
+        MQTTMessageHandler onMessage) : _logger("MQTT")
     {
-        static MQTT *_instance = new MQTT();
-        return _instance;
+        _wifi = network;
+        _onConnect = onConnect;
+        _onMessage = onMessage;
     }
-
-    MQTT::MQTT() : _logger("MQTT") {}
-
-    // ----------------------------------------------------------------------
-    // Setup
-    // ----------------------------------------------------------------------
 
     void MQTT::setup()
     {
-        WiFi *network = WiFi::Instance();
-
 #ifdef MQTT_DEVICE_ID
         _mqttDeviceId = MQTT_DEVICE_ID;
 #else
-        _mqttDeviceId = network->getMacAddress();
+        _mqttDeviceId = _wifi->getMacAddress();
 #endif
         _logger.log("ss", "Device ID = ", _mqttDeviceId);
 
-        _mqttClient.begin(MQTT_BROKER, MQTT_PORT, network->client);
-    }
-
-    void MQTT::onConnect(MQTTConnectHandler callback)
-    {
-        _onConnect = callback;
-    }
-
-    void MQTT::onMessage(MQTTClientCallbackSimple callback)
-    {
-        _onMessage = callback;
+        _mqttClient.begin(MQTT_BROKER, MQTT_PORT, _wifi->client);
     }
 
     // ----------------------------------------------------------------------
@@ -63,8 +44,9 @@ namespace Dough
             _logger.log("s", "ERROR - Connection to broker failed");
             return false;
         }
+        _logger.log("s", "Connection to broker successful");
 
-        _mqttClient.onMessage(MQTT::handleMessage);
+        _mqttClient.onMessage(_onMessage);
 
         if (_onConnect != nullptr)
         {
@@ -81,21 +63,22 @@ namespace Dough
         _mqttClient.loop();
     }
 
-    void MQTT::handleMessage(String &topic, String &payload)
-    {
-        MQTT::Instance()->_logger.log("sSsS", "<<< ", topic, " = ", payload);
+    // // static
+    // void MQTT::handleMessage(String &topic, String &payload)
+    // {
+    //     MQTT::Instance()->_logger.log("sSsS", "<<< ", topic, " = ", payload);
 
-        MQTT *mqtt = MQTT::Instance();
-        if (mqtt->_onMessage != nullptr)
-        {
-            int pos = topic.lastIndexOf('/');
-            if (pos != -1)
-            {
-                topic.remove(0, pos + 1);
-                mqtt->_onMessage(topic, payload);
-            }
-        }
-    }
+    //     MQTT *mqtt = MQTT::Instance();
+    //     if (mqtt->_onMessage != nullptr)
+    //     {
+    //         int pos = topic.lastIndexOf('/');
+    //         if (pos != -1)
+    //         {
+    //             topic.remove(0, pos + 1);
+    //             mqtt->_onMessage(topic, payload);
+    //         }
+    //     }
+    // }
 
     void MQTT::subscribe(const char *key)
     {

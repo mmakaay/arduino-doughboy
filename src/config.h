@@ -1,3 +1,13 @@
+// The speed to use for the serial terminal logging.
+#define LOG_BAUDRATE 9600
+
+// Define this one to wait for USB serial to come up.
+// This can be useful during development, when you want all
+// serial messages to appear in the serial monitor.
+// Without this, some of the initial serial messages might
+// be missing from the output.
+#undef LOG_WAIT_SERIAL
+
 // The digital pins to which the push buttons are connected.
 #define ONOFF_BUTTON_PIN 2
 #define SETUP_BUTTON_PIN 3
@@ -25,6 +35,12 @@
 #define HUMIDITY_AVERAGE_STORAGE 6      // making this a 3 minute average
 #define DISTANCE_MEASURE_INTERVAL 1     // measure every second
 #define DISTANCE_AVERAGE_STORAGE 180    // making this a 3 minute average
+
+// The minimum interval in seconds at which to publish measurements to MQTT.
+// This can be seen as keep-alive functionality, allowing the receiving
+// side to consider the device off-line when no new data have come in
+// after this interval.
+#define MINIMUM_PUBLISH_INTERVAL 300
 
 // The network configuration and possibly overrides for the above
 // definitions are stored in a separate header file, which is

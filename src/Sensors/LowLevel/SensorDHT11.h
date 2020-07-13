@@ -1,5 +1,5 @@
-#ifndef DOUGH_SENSORS_DHT11_H
-#define DOUGH_SENSORS_DHT11_H
+#ifndef DOUGH_SENSOR_DHT11_H
+#define DOUGH_SENSOR_DHT11_H
 
 #include <DHT.h>
 #include "config.h"

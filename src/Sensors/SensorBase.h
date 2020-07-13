@@ -1,5 +1,5 @@
-#ifndef DOUGH_SENSORS_BASE_H
-#define DOUGH_SENSORS_BASE_H
+#ifndef DOUGH_SENSOR_BASE_H
+#define DOUGH_SENSOR_BASE_H
 
 #include "Data/Measurement.h"
 

@@ -20,10 +20,8 @@ namespace Dough
     class MQTT
     {
     public:
-        static MQTT *Instance();
+        MQTT(WiFi *network, MQTTConnectHandler onConnect, MQTTMessageHandler onMessage);
         void setup();
-        void onConnect(MQTTConnectHandler callback);
-        void onMessage(MQTTMessageHandler callback);
         bool isConnected();
         bool connect();
         void subscribe(const char *key);
@@ -33,15 +31,13 @@ namespace Dough
         void publish(const char *key, Measurement measurement);
 
     private:
-        MQTT();
-        MQTTClient _mqttClient;
+        WiFi *_wifi;
         Logger _logger;
-        MQTTConnectHandler _onConnect = nullptr;
-        MQTTClientCallbackSimple _onMessage = nullptr;
-        static void handleMessage(String &topic, String &payload);
+        MQTTClient _mqttClient;
+        MQTTConnectHandler _onConnect;
+        MQTTClientCallbackSimple _onMessage;
         char *_mqttDeviceId;
     };
-
 }
 
 #endif

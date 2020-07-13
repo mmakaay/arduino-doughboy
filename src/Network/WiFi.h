@@ -1,5 +1,5 @@
-#ifndef DOUGH_NETWORK_H
-#define DOUGH_NETWORK_H
+#ifndef DOUGH_WIFI_H
+#define DOUGH_WIFI_H
 
 #include <WiFiNINA.h>
 #include "UI/Logger.h"
@@ -11,7 +11,7 @@ namespace Dough
     class WiFi
     {
     public:
-        static WiFi *Instance();
+        WiFi();
         char *getMacAddress();
         void setup();
         void loop();
@@ -20,8 +20,7 @@ namespace Dough
         WiFiClient client;
 
     private:
-        WiFi();
-        void _setMacAddress();
+        void _storeMacAddress();
         char _macAddress[18]; // max MAC address length + 1
         Logger _logger;
     };

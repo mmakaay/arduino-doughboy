@@ -4,18 +4,19 @@
 namespace Dough
 {
     SensorController::SensorController(
+        MQTT *mqtt,
         const char *mqttKey,
         SensorBase *sensor,
         unsigned int storageSize,
         unsigned int minimumMeasureTime,
         unsigned int minimumPublishTime)
     {
+        _mqtt = mqtt;
         _mqttKey = mqttKey;
         _sensor = sensor;
         _storageSize = storageSize;
         _minimumMeasureTime = minimumMeasureTime;
         _minimumPublishTime = minimumPublishTime;
-        _mqtt = MQTT::Instance();
         _ui = UI::Instance();
     }
 

@@ -1,5 +1,5 @@
-#ifndef DOUGH_SENSORS_HUMIDITY_H
-#define DOUGH_SENSORS_HUMIDITY_H
+#ifndef DOUGH_HUMIDITY_SENSOR_H
+#define DOUGH_HUMIDITY_SENSOR_H
 
 #include "Sensors/SensorBase.h"
 #include "Sensors/LowLevel/SensorDHT11.h"

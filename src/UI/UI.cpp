@@ -30,15 +30,6 @@ namespace Dough
 
     void UI::setup()
     {
-        // Setup the serial port, used for logging.
-        Serial.begin(LOG_BAUDRATE);
-#ifdef LOG_WAIT_SERIAL
-        while (!Serial)
-        {
-            // wait for serial port to connect. Needed for native USB.
-        }
-#endif
-
         // Setup the buttons.
         onoffButton.setup();
         onoffButton.onInterrupt(UI::onoffButtonISR);

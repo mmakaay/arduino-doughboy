@@ -7,6 +7,18 @@ namespace Dough
         _section = section;
     }
 
+    void Logger::setup()
+    {
+        // Setup the serial port, used for logging.
+        Serial.begin(LOG_BAUDRATE);
+#ifdef LOG_WAIT_SERIAL
+        while (!Serial)
+        {
+            // wait for serial port to connect. Needed for native USB.
+        }
+#endif
+    }
+
     void Logger::suspend()
     {
         _suspended = true;
@@ -70,4 +82,4 @@ namespace Dough
 
         Serial.println("");
     }
-}
+} // namespace Dough

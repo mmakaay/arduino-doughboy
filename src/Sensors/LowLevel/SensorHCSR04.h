@@ -1,5 +1,5 @@
-#ifndef HCSR04_H
-#define HCSR04_H
+#ifndef DOUGH_SENSOR_HCSR04_H
+#define DOUGH_SENSOR_HCSR04_H
 
 // The minimum and maximum distance that can be measured in mm.
 // This is based on the specifications of the HCSR04 sensor.

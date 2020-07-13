@@ -1,5 +1,5 @@
-#ifndef DOUGH_DATA_MEASUREMENT_H
-#define DOUGH_DATA_MEASUREMENT_H
+#ifndef DOUGH_MEASUREMENT_H
+#define DOUGH_MEASUREMENT_H
 
 namespace Dough
 {

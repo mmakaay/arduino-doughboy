@@ -2,12 +2,12 @@
 #define DOUGHBOY_H
 
 #include <Arduino.h>
+#include "App/App.h"
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/HumiditySensor.h"
 #include "Sensors/DistanceSensor.h"
 #include "Network/WiFi.h"
 #include "Network/MQTT.h"
-#include "Data/DataController.h"
 #include "UI/Button.h"
 #include "UI/UI.h"
 #include "config.h"

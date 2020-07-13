@@ -12,13 +12,9 @@ auto logger = Dough::Logger("MAIN");
 
 void setup()
 {
+    Dough::Logger::setup();
     logger.log("s", "Initializing device");
-    Dough::TemperatureSensor::Instance()->setup();
-    Dough::HumiditySensor::Instance()->setup();
-    Dough::DistanceSensor::Instance()->setup();
-    Dough::WiFi::Instance()->setup();
-    Dough::MQTT::Instance()->setup();
-    Dough::DataController::Instance()->setup();
+    Dough::App::Instance()->setup();
     auto ui = Dough::UI::Instance();
     ui->setup();
     ui->onoffButton.onPress(handleOnoffButtonPress);
@@ -28,9 +24,9 @@ void setup()
 
 void loop()
 {
+    auto app = Dough::App::Instance();
+    auto mqtt = app->mqtt;
     auto ui = Dough::UI::Instance();
-    auto data = Dough::DataController::Instance();
-    auto mqtt = Dough::MQTT::Instance();
 
     ui->processButtonEvents();
 
@@ -39,19 +35,19 @@ void loop()
         return;
     }
 
-    mqtt->procesIncomingsMessages();
+    mqtt.procesIncomingsMessages();
 
-    if (state == CONFIGURING && data->isConfigured())
+    if (state == CONFIGURING && app->config.isOk())
     {
         setStateToMeasuring();
     }
-    else if (state == MEASURING && !data->isConfigured())
+    else if (state == MEASURING && !app->config.isOk())
     {
         setStateToConfiguring();
     }
     else if (state == MEASURING)
     {
-        Dough::DataController::Instance()->loop();
+        app->measure();
     }
     else if (state == CALIBRATING)
     {
@@ -60,7 +56,7 @@ void loop()
     }
     else if (state == PAUSED)
     {
-        Dough::DataController::Instance()->clearHistory();
+        app->clearHistory();
     }
 }
 
@@ -71,11 +67,12 @@ bool setupNetworkConnection()
 {
     static auto connectionState = CONNECTING_WIFI;
 
+    auto app = Dough::App::Instance();
     auto ui = Dough::UI::Instance();
-    auto network = Dough::WiFi::Instance();
-    auto mqtt = Dough::MQTT::Instance();
+    auto network = app->wifi;
+    auto mqtt = app->mqtt;
 
-    if (!network->isConnected())
+    if (!network.isConnected())
     {
         if (connectionState == CONNECTED)
         {
@@ -89,9 +86,9 @@ bool setupNetworkConnection()
         ui->led1.blink()->slow();
         ui->led2.off();
         ui->led3.off();
-        network->connect();
+        network.connect();
     }
-    if (network->isConnected() && !mqtt->isConnected())
+    if (network.isConnected() && !mqtt.isConnected())
     {
         if (connectionState == CONNECTED)
         {
@@ -102,12 +99,12 @@ bool setupNetworkConnection()
             logger.log("s", "Connecting to the MQTT broker ...");
         }
         connectionState = CONNECTING_MQTT;
-        ui->led1.blink()->fast();
-        ui->led2.off();
+        ui->led1.on();
+        ui->led2.blink()->slow();
         ui->led3.off();
-        mqtt->connect();
+        mqtt.connect();
     }
-    if (network->isConnected() && mqtt->isConnected())
+    if (network.isConnected() && mqtt.isConnected())
     {
         if (connectionState != CONNECTED)
         {
@@ -149,7 +146,7 @@ void setStateToConfiguring()
     ui->led1.on();
     ui->led2.blink()->fast();
     ui->led3.off();
-    Dough::MQTT::Instance()->publish("state", "configuring");
+    Dough::App::Instance()->mqtt.publish("state", "configuring");
 }
 
 void setStateToMeasuring()
@@ -160,7 +157,7 @@ void setStateToMeasuring()
     ui->led1.on();
     ui->led2.on();
     ui->led3.on();
-    Dough::MQTT::Instance()->publish("state", "measuring");
+    Dough::App::Instance()->mqtt.publish("state", "measuring");
 }
 
 void setStateToPaused()
@@ -171,7 +168,7 @@ void setStateToPaused()
     ui->led1.on();
     ui->led2.on();
     ui->led3.pulse();
-    Dough::MQTT::Instance()->publish("state", "paused");
+    Dough::App::Instance()->mqtt.publish("state", "paused");
 }
 
 void setStateToCalibrating()
@@ -182,5 +179,5 @@ void setStateToCalibrating()
     ui->led1.on();
     ui->led2.blink()->slow();
     ui->led3.off();
-    Dough::MQTT::Instance()->publish("state", "calibrating");
+    Dough::App::Instance()->mqtt.publish("state", "calibrating");
 }

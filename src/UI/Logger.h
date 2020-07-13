@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include <stdarg.h>
 #include <WiFiNINA.h>
+#include "config.h"
 
 namespace Dough
 {
@@ -15,6 +16,7 @@ namespace Dough
     class Logger
     {
     public:
+        static void setup();
         Logger(const char *section);
         void log(const char *fmt, ...);
         void suspend();

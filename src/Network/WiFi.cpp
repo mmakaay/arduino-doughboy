@@ -2,23 +2,13 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
-    WiFi *WiFi::Instance()
-    {
-        static WiFi *_instance = new WiFi();
-        return _instance;
-    }
-
     WiFi::WiFi() : _logger("WIFI") {}
 
     // ----------------------------------------------------------------------
     // Setup
     // ----------------------------------------------------------------------
 
-    void WiFi::_setMacAddress()
+    void WiFi::_storeMacAddress()
     {
         byte mac[6];
         ::WiFi.macAddress(mac);
@@ -29,13 +19,14 @@ namespace Dough
 
     void WiFi::setup()
     {
-        _setMacAddress();
+        _storeMacAddress();
         _logger.log("ss", "MAC address = ", getMacAddress());
     }
 
-    // ----------------------------------------------------------------------
-    // Loop
-    // ----------------------------------------------------------------------
+    char *WiFi::getMacAddress()
+    {
+        return _macAddress;
+    }
 
     bool WiFi::isConnected()
     {
@@ -76,10 +67,5 @@ namespace Dough
             _logger.log("sis", "ERROR - WiFi connection failed (reason: ", ::WiFi.reasonCode(), ")");
             return false;
         }
-    }
-
-    char *WiFi::getMacAddress()
-    {
-        return _macAddress;
     }
 }

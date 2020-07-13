@@ -1,5 +1,5 @@
-#ifndef DOUGH_SENSORS_TEMPERATURE_H
-#define DOUGH_SENSORS_TEMPERATURE_H
+#ifndef DOUGH_TEMPERATURE_SENSOR_H
+#define DOUGH_TEMPERATURE_SENSOR_H
 
 #include "Sensors/SensorBase.h"
 #include "Sensors/LowLevel/SensorDHT11.h"
