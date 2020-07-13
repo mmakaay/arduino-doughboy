@@ -1,20 +1,30 @@
-// The digital pin to which the DATA pin of the DHT11
-// temperature/humidity sensor is connected.
-#define DHT11_DATA_PIN 10
+// The digital pins to which the push buttons are connected.
+#define ONOFF_BUTTON_PIN 2
+#define SETUP_BUTTON_PIN 3
 
 // The digital pins to which the TRIG and ECHO pins of
 // the HCSR04 distance sensor are connected.
 #define HCSR04_TRIG_PIN 4
 #define HCSR04_ECHO_PIN 5
 
+// The digital pin to which the DATA pin of the DHT11
+// temperature/humidity sensor is connected.
+#define DHT11_DATA_PIN 10
+
 // The digital pins to which the three LEDs are connected.
 #define LED1_PIN 8
 #define LED2_PIN 7
-#define LED3_PIN 6
+#define LED3_PIN 6 // PWM pin, so pulsing during "device paused" is possible
 
-// The digital pins to which the push buttons are connected.
-#define ONOFF_BUTTON_PIN 2
-#define SETUP_BUTTON_PIN 3
+// Two different values are published per sensor: a recent value and an average
+// value. These definitions define how often measurements must be taken and
+// how many values must be stored to compute an average.
+#define TEMPERATURE_MEASURE_INTERVAL 30 // measure twice per minute
+#define TEMPERATURE_AVERAGE_STORAGE 6   // making this a 3 minute average
+#define HUMIDITY_MEASURE_INTERVAL 30    // measure twice per minute
+#define HUMIDITY_AVERAGE_STORAGE 6      // making this a 3 minute average
+#define DISTANCE_MEASURE_INTERVAL 1     // measure every second
+#define DISTANCE_AVERAGE_STORAGE 180    // making this a 3 minute average
 
 // The network configuration and possibly overrides for the above
 // definitions are stored in a separate header file, which is

@@ -136,6 +136,14 @@ namespace Dough
 
     void SensorController::_publish()
     {
+        // Quickly dip the LED to indicate that a publish has started.
+        // This is done synchroneously, because the upcoming code is too
+        // fast normally to register a LED going off and on again during
+        // the operation.
+        _ui->led1.off();
+        delay(50);
+        _ui->led1.on();
+
         auto average = getAverage();
         auto last = getLast();
 
@@ -201,4 +209,4 @@ namespace Dough
             _storage[i]->clear();
         }
     }
-} // namespace Dough
+}

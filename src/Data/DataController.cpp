@@ -15,20 +15,20 @@ namespace Dough
     DataController::DataController() : _temperatureMeasurements(
                                            "temperature",
                                            TemperatureSensor::Instance(),
-                                           TEMPERATURE_AVG_LOOKBACK,
-                                           30,
+                                           TEMPERATURE_AVERAGE_STORAGE,
+                                           TEMPERATURE_MEASURE_INTERVAL,
                                            PUBLISH_INTERVAL),
                                        _humidityMeasurements(
                                            "humidity",
                                            HumiditySensor::Instance(),
-                                           HUMIDITY_AVG_LOOKBACK,
-                                           30,
+                                           HUMIDITY_AVERAGE_STORAGE,
+                                           HUMIDITY_MEASURE_INTERVAL,
                                            PUBLISH_INTERVAL),
                                        _distanceMeasurements(
                                            "distance",
                                            DistanceSensor::Instance(),
-                                           DISTANCE_AVG_LOOKBACK,
-                                           1,
+                                           DISTANCE_AVERAGE_STORAGE,
+                                           DISTANCE_MEASURE_INTERVAL,
                                            PUBLISH_INTERVAL),
                                        _logger("DATA")
     {
@@ -57,6 +57,7 @@ namespace Dough
     void DataController::handleMqttConnect(MQTT *mqtt)
     {
         mqtt->subscribe("container_height");
+        mqtt->subscribe("temperature_offset");
     }
 
     void DataController::handleMqttMessage(String &key, String &payload)
@@ -64,6 +65,10 @@ namespace Dough
         if (key.equals("container_height"))
         {
             DataController::Instance()->setContainerHeight(payload.toInt());
+        }
+        if (key.equals("temperature_offset"))
+        {
+            DataController::Instance()->setTemperatureOffset(payload.toInt());
         }
         else
         {
@@ -101,6 +106,25 @@ namespace Dough
         _containerHeightSet = true;
     }
 
+    // Set the temperature offset in °C, to calibrate the temperature
+    // as measured by the device. On my device, the temperature raises about
+    // 5 degrees in the first few minutes, due to the circuitry warming up.
+    // I will have to fix that in the hardware as well, because 5 degrees is
+    // just redicoulous, but there might always be a diff that needs to be
+    // compensated for.
+    void DataController::setTemperatureOffset(int offset)
+    {
+        // Just a little safety measure. Devices should never need more than
+        // 10 degrees correction, right?
+        if (offset < -10 || offset > 10) {
+            _logger.log("sisis", "ERROR - Temperature offset ", offset,
+                        "°C is too large (allowed range: -10°C up to +10°C)");
+            return;
+        }
+        _logger.log("sis", "Set temperature offset to ", offset, "°C");
+        _temperatureOffset = offset;
+    }
+
     // ----------------------------------------------------------------------
     // Loop
     // ----------------------------------------------------------------------
@@ -112,8 +136,6 @@ namespace Dough
             _temperatureMeasurements.loop();
             _humidityMeasurements.loop();
             _distanceMeasurements.loop();
-            // Moved logic into sensor controller code.
-            //_sample();
         }
     }
 
@@ -122,55 +144,5 @@ namespace Dough
         _temperatureMeasurements.clearHistory();
         _humidityMeasurements.clearHistory();
         _distanceMeasurements.clearHistory();
-        _sampleType = SAMPLE_TEMPERATURE;
-        _sampleCounter = 0;
-    }
-
-    void DataController::_sample()
-    {
-        auto now = millis();
-        auto delta = now - _lastSample;
-        auto tick = _lastSample == 0 || delta >= SAMPLE_INTERVAL;
-
-        if (tick)
-        {
-            _lastSample = now;
-
-            // Quickly dip the LED to indicate that a measurement has started.
-            // This is done synchroneously, because we suspend the timer interrupts
-            // in the upcoming code.
-            _ui->led3.off();
-            delay(50);
-            _ui->led3.on();
-
-            // Suspend the UI timer interrupts, to not let these interfere
-            // with the sensor measurements.
-            _ui->suspend();
-
-            // Take a sample.
-            switch (_sampleType)
-            {
-            case SAMPLE_TEMPERATURE:
-                _temperatureMeasurements.loop();
-                _sampleType = SAMPLE_HUMIDITY;
-                break;
-            case SAMPLE_HUMIDITY:
-                _humidityMeasurements.loop();
-                _sampleType = SAMPLE_DISTANCE;
-                break;
-            case SAMPLE_DISTANCE:
-                _distanceMeasurements.loop();
-                break;
-            }
-
-            _ui->resume();
-
-            _sampleCounter++;
-            if (_sampleCounter == SAMPLE_CYCLE_LENGTH)
-            {
-                _sampleCounter = 0;
-                _sampleType = SAMPLE_TEMPERATURE;
-            }
-        }
     }
 }

@@ -47,4 +47,4 @@ namespace Dough
     {
         return 2; // prevent flapping when transitioning from value A to value B
     }
-} // namespace Dough
+}

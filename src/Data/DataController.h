@@ -1,21 +1,6 @@
 #ifndef DOUGH_DATA_DATACONTROLLER_H
 #define DOUGH_DATA_DATACONTROLLER_H
 
-// These definitions describes what measurements are performed in sequence.
-// One measurement is done every SAMPLE_INTERVAL microseconds.
-// We always start with a temperature measurement, then a humidity measurement,
-// and finally a number of distance measurements.
-// The SAMPLE_CYCLE_LENGTH defines the total number of samples in this sequence.
-#define SAMPLE_INTERVAL 1000
-#define SAMPLE_CYCLE_LENGTH 30 // 1 temperature + 1 humidity + 28 distance samples
-
-// Two different values are published per sensor: a recent value and an average
-// value. These definition define the number of recent measurements to include
-// in the average computation.
-#define TEMPERATURE_AVG_LOOKBACK 6       // making this a 3 minute average
-#define HUMIDITY_AVG_LOOKBACK 6          // making this a 3 minute average
-#define DISTANCE_AVG_LOOKBACK 28 * 2 * 3 // making this a 3 minute average
-
 // The minimal interval in seconds at which to forcibly publish measurements to the
 // MQTT broker. When significant changes occur in the measurements, then these will
 // be published to the MQTT broker at all times, independent from this interval.
@@ -51,6 +36,7 @@ namespace Dough
         void loop();
         void clearHistory();
         void setContainerHeight(int height);
+        void setTemperatureOffset(int offset);
         bool isConfigured();
         static void handleMqttConnect(MQTT *mqtt);
         static void handleMqttMessage(String &key, String &value);
@@ -63,11 +49,9 @@ namespace Dough
         SensorController _humidityMeasurements;
         SensorController _distanceMeasurements;
         Logger _logger;
-        unsigned long _lastSample = 0;
-        DoughSampleType _sampleType = SAMPLE_TEMPERATURE;
-        int _sampleCounter = 0;
-        int _containerHeight;
+        unsigned int _containerHeight;
         bool _containerHeightSet;
+        int _temperatureOffset = 0;
         void _sample();
     };
 }
