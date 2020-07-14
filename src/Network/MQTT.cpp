@@ -24,10 +24,6 @@ namespace Dough
         _mqttClient.begin(MQTT_BROKER, MQTT_PORT, _wifi->client);
     }
 
-    // ----------------------------------------------------------------------
-    // Loop
-    // ----------------------------------------------------------------------
-
     bool MQTT::isConnected()
     {
         return _mqttClient.connected();
@@ -63,23 +59,6 @@ namespace Dough
         _mqttClient.loop();
     }
 
-    // // static
-    // void MQTT::handleMessage(String &topic, String &payload)
-    // {
-    //     MQTT::Instance()->_logger.log("sSsS", "<<< ", topic, " = ", payload);
-
-    //     MQTT *mqtt = MQTT::Instance();
-    //     if (mqtt->_onMessage != nullptr)
-    //     {
-    //         int pos = topic.lastIndexOf('/');
-    //         if (pos != -1)
-    //         {
-    //             topic.remove(0, pos + 1);
-    //             mqtt->_onMessage(topic, payload);
-    //         }
-    //     }
-    // }
-
     void MQTT::subscribe(const char *key)
     {
         char topic[200];
@@ -92,7 +71,7 @@ namespace Dough
     {
         char topic[200];
         snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
-        _logger.log("ssss", ">>> ", topic, " = ", payload);
+        _logger.log("ssss", "Send message: ", topic, " = ", payload);
         _mqttClient.publish(topic, payload);
     }
 
@@ -114,5 +93,4 @@ namespace Dough
             publish(key, "null");
         }
     }
-
 }

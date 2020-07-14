@@ -75,5 +75,18 @@ void mqttOnConnectCallback(Dough::MQTT *mqtt)
 
 void mqttOnMessageCallback(String &topic, String &payload)
 {
-    callbackLogger.log("s", "MQTT message received");
+    callbackLogger.log("ssss", "MQTT message received: ", topic.c_str(), " = ", payload.c_str());
+
+    if (topic.endsWith("/container_height"))
+    {
+        Dough::App::Instance()->config.setContainerHeight(payload.toInt());
+    }
+    else if (topic.endsWith("/temperature_offset"))
+    {
+        Dough::App::Instance()->config.setTemperatureOffset(payload.toInt());
+    }
+    else
+    {
+        callbackLogger.log("ss", "ERROR - Unhandled MQTT message, topic = ", topic.c_str());
+    }
 }

@@ -12,33 +12,7 @@ namespace Dough
         _containerHeight = 0.00;
         _containerHeightSet = false;
         _temperatureOffset = 0;
-
-        // MQTT *mqtt = MQTT::Instance();
-        // mqtt->onConnect(Configuration::handleMqttConnect);
-        // mqtt->onMessage(Configuration::handleMqttMessage);
     }
-
-    // void Configuration::handleMqttConnect(MQTT *mqtt)
-    // {
-    //     mqtt->subscribe("container_height");
-    //     mqtt->subscribe("temperature_offset");
-    // }
-
-    // void Configuration::handleMqttMessage(String &key, String &payload)
-    // {
-    //     if (key.equals("container_height"))
-    //     {
-    //         App::Instance()->config.setContainerHeight(payload.toInt());
-    //     }
-    //     if (key.equals("temperature_offset"))
-    //     {
-    //         App::Instance()->config.setTemperatureOffset(payload.toInt());
-    //     }
-    //     else
-    //     {
-    //         App::Instance()->config._logger.log("ss", "ERROR - Unhandled MQTT message, key = ", key.c_str());
-    //     }
-    // }
 
     bool Configuration::isOk()
     {

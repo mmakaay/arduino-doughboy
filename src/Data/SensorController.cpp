@@ -22,6 +22,8 @@ namespace Dough
 
     void SensorController::setup()
     {
+        _sensor->setup();
+
         // Format the key to use for publishing the average (i.e. "<mqttKey>/average").
         auto lenAverageKey = strlen(_mqttKey) + 9; // +9 for the "/average\0" suffix
         _mqttAverageKey = new char[lenAverageKey];
