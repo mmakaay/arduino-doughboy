@@ -144,4 +144,4 @@ namespace Dough
             _state = UP_AFTER_LONG;
         }
     }
-}
+} // namespace Dough

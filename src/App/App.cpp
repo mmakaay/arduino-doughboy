@@ -10,7 +10,10 @@ namespace Dough
 
     App::App() : config(),
                  wifi(),
-                 mqtt(&wifi, mqttOnConnect, mqttOnMessage),
+                 mqtt(
+                     &wifi,
+                     mqttOnConnectCallback,
+                     mqttOnMessageCallback),
                  temperatureSensor(
                      &mqtt,
                      "temperature",
@@ -31,9 +34,8 @@ namespace Dough
                      DistanceSensor::Instance(),
                      DISTANCE_AVERAGE_STORAGE,
                      DISTANCE_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL)
-    {
-    }
+                     MINIMUM_PUBLISH_INTERVAL),
+                 _logger("APP") {}
 
     void App::setup()
     {
@@ -62,14 +64,16 @@ namespace Dough
     }
 } // namespace Dough
 
-void mqttOnConnect(Dough::MQTT *mqtt)
+Dough::Logger callbackLogger("CALLBACK");
+
+void mqttOnConnectCallback(Dough::MQTT *mqtt)
 {
-    Serial.println("Subscribe to required incoming MQTT topics");
+    callbackLogger.log("s", "MQTT connection establish, subscribing to topics");
     mqtt->subscribe("container_height");
-    mqtt->subscribe("temperature_offset");    
+    mqtt->subscribe("temperature_offset");
 }
 
-void mqttOnMessage(String &topic, String &payload)
+void mqttOnMessageCallback(String &topic, String &payload)
 {
-    Serial.println("Handle message");
+    callbackLogger.log("s", "MQTT message received");
 }

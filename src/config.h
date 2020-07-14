@@ -6,7 +6,7 @@
 // serial messages to appear in the serial monitor.
 // Without this, some of the initial serial messages might
 // be missing from the output.
-#undef LOG_WAIT_SERIAL
+//#define LOG_WAIT_SERIAL
 
 // The digital pins to which the push buttons are connected.
 #define ONOFF_BUTTON_PIN 2

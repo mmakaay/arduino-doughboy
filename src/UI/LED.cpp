@@ -173,4 +173,4 @@ namespace Dough
     {
         return _pinState == LOW;
     }
-}
+} // namespace Dough

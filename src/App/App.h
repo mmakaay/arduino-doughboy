@@ -28,11 +28,12 @@ namespace Dough
                 
     private:
         App();
+        Logger _logger;
     };
 }
 
 // Callback functions that need to live in the global namespace.
-void mqttOnConnect(Dough::MQTT*);
-void mqttOnMessage(String &topic, String &payload);
+void mqttOnConnectCallback(Dough::MQTT* mqtt);
+void mqttOnMessageCallback(String &topic, String &payload);
 
 #endif

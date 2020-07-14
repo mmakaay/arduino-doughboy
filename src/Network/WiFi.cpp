@@ -58,7 +58,10 @@ namespace Dough
         // Check if the connection attempt was successful.
         if (status == WL_CONNECTED)
         {
-            _logger.log("sa", "IP-Address = ", ::WiFi.localIP());
+            char buf[50]; // this will also fit IPv6 addresses
+            auto printer = StringPrinter(buf, 50);
+            printer.print(::WiFi.localIP());
+            _logger.log("ss", "IP-Address = ", buf);
             _logger.log("sis", "Signal strength = ", ::WiFi.RSSI(), " dBm");
             return true;
         }

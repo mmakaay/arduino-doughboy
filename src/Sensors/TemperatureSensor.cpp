@@ -2,10 +2,6 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
     TemperatureSensor *TemperatureSensor::Instance()
     {
         static TemperatureSensor *_instance = new TemperatureSensor();
@@ -13,10 +9,6 @@ namespace Dough
     }
 
     TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
-
-    // ----------------------------------------------------------------------
-    // setup
-    // ----------------------------------------------------------------------
 
     void TemperatureSensor::setup()
     {

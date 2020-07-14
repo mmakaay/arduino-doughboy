@@ -55,26 +55,17 @@ namespace Dough
                 float f = va_arg(args, double);
                 Serial.print(f);
             }
-            else if (*fmt == 'a')
-            {
-                IPAddress a = va_arg(args, IPAddress);
-                Serial.print(a);
-            }
             else if (*fmt == 's')
             {
                 const char *s = va_arg(args, const char *);
                 Serial.print(s);
             }
-            else if (*fmt == 'S')
-            {
-                String S = va_arg(args, String);
-                Serial.print(S);
-            }
             else
             {
                 Serial.print("<log(): invalid format char '");
                 Serial.print(*fmt);
-                Serial.print("'>");
+                Serial.println("'>");
+                return;
             }
             fmt++;
         }

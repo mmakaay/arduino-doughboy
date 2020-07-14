@@ -20,7 +20,7 @@ namespace Dough
     class MQTT
     {
     public:
-        MQTT(WiFi *network, MQTTConnectHandler onConnect, MQTTMessageHandler onMessage);
+        MQTT(WiFi *wifi, MQTTConnectHandler onConnect, MQTTMessageHandler onMessage);
         void setup();
         bool isConnected();
         bool connect();

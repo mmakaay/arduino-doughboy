@@ -47,7 +47,7 @@ namespace Dough
         // This allows for example to have a flashing LED, during the
         // wifi connection setup.
         _setupTimerInterrupt();
-        
+
         // Notify the user that we're on a roll!
         _flash_all_leds();
 
@@ -95,7 +95,8 @@ namespace Dough
                          TC_CTRLA_ENABLE;          // Enable TC4
         REG_TC4_INTENSET = TC_INTENSET_OVF;        // Enable TC4 overflow (OVF) interrupts
         REG_TC4_COUNT8_CC0 = 1;                    // Set the CC0 as the TOP value for MFRQ (1 => 50ms per pulse)
-        while (TC4->COUNT8.STATUS.bit.SYNCBUSY);  // Wait for synchronization
+        while (TC4->COUNT8.STATUS.bit.SYNCBUSY)
+            ; // Wait for synchronization
     }
 
     // ----------------------------------------------------------------------
@@ -160,7 +161,7 @@ namespace Dough
         delay(100);
         led3.off();
     }
-}
+} // namespace Dough
 
 // This callback is called when the TC4 timer hits an overflow interrupt.
 // Defined outside the Dough namespace, because TC4_Handler is a hard-coded
@@ -170,4 +171,3 @@ void TC4_Handler()
     Dough::UI::Instance()->updatedLEDs();
     REG_TC4_INTFLAG = TC_INTFLAG_OVF; // Clear the OVF interrupt flag.
 }
-

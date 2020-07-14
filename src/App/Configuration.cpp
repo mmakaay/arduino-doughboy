@@ -36,7 +36,7 @@ namespace Dough
     //     }
     //     else
     //     {
-    //         App::Instance()->config._logger.log("sS", "ERROR - Unhandled MQTT message, key = ", key);
+    //         App::Instance()->config._logger.log("ss", "ERROR - Unhandled MQTT message, key = ", key.c_str());
     //     }
     // }
 

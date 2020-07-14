@@ -3,11 +3,11 @@
 namespace Dough
 {
     MQTT::MQTT(
-        WiFi *network,
+        WiFi *wifi,
         MQTTConnectHandler onConnect,
         MQTTMessageHandler onMessage) : _logger("MQTT")
     {
-        _wifi = network;
+        _wifi = wifi;
         _onConnect = onConnect;
         _onMessage = onMessage;
     }

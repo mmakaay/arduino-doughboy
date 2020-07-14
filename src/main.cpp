@@ -1,14 +1,10 @@
 #include "main.h"
 
-// TODO: move code to Dough namespace
-// TODO: move config to a separate class
-// TODO: see if I can give each sensor its own built-in loop schedule for sampling, the DoughData class might be overkill in the latest setup.
 // TOOD: implement the calibration logic
 // TODO: see what more stuff can be moved to the UI code. Maybe state to UI state translation ought to be there as well
-// TODO: make significantChange part of sensor class?
 
 DoughBoyState state = CONFIGURING;
-auto logger = Dough::Logger("MAIN");
+Dough::Logger logger("MAIN");
 
 void setup()
 {
@@ -25,7 +21,6 @@ void setup()
 void loop()
 {
     auto app = Dough::App::Instance();
-    auto mqtt = app->mqtt;
     auto ui = Dough::UI::Instance();
 
     ui->processButtonEvents();
@@ -34,12 +29,15 @@ void loop()
     {
         return;
     }
-
-    mqtt.procesIncomingsMessages();
-
-    if (state == CONFIGURING && app->config.isOk())
+    
+    app->mqtt.procesIncomingsMessages();
+    
+    if (state == CONFIGURING)
     {
-        setStateToMeasuring();
+        if (app->config.isOk())
+        {
+            setStateToMeasuring();
+        }
     }
     else if (state == MEASURING && !app->config.isOk())
     {
@@ -69,10 +67,8 @@ bool setupNetworkConnection()
 
     auto app = Dough::App::Instance();
     auto ui = Dough::UI::Instance();
-    auto network = app->wifi;
-    auto mqtt = app->mqtt;
 
-    if (!network.isConnected())
+    if (!app->wifi.isConnected())
     {
         if (connectionState == CONNECTED)
         {
@@ -86,9 +82,9 @@ bool setupNetworkConnection()
         ui->led1.blink()->slow();
         ui->led2.off();
         ui->led3.off();
-        network.connect();
+        app->wifi.connect();
     }
-    if (network.isConnected() && !mqtt.isConnected())
+    if (app->wifi.isConnected() && !app->mqtt.isConnected())
     {
         if (connectionState == CONNECTED)
         {
@@ -99,12 +95,13 @@ bool setupNetworkConnection()
             logger.log("s", "Connecting to the MQTT broker ...");
         }
         connectionState = CONNECTING_MQTT;
-        ui->led1.on();
-        ui->led2.blink()->slow();
+        ui->led1.blink()->fast();
+        ui->led2.off();
         ui->led3.off();
-        mqtt.connect();
+        app->mqtt.connect();
+        delay(1000); // purely costmetic, to make the faster LED blinking noticable
     }
-    if (network.isConnected() && mqtt.isConnected())
+    if (app->wifi.isConnected() && app->mqtt.isConnected())
     {
         if (connectionState != CONNECTED)
         {

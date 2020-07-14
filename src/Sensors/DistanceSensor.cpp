@@ -2,10 +2,6 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
     DistanceSensor *DistanceSensor::Instance()
     {
         static DistanceSensor *_instance = new DistanceSensor();
@@ -16,10 +12,6 @@ namespace Dough
     {
         _hcsr04 = new SensorHCSR04(HCSR04_TRIG_PIN, HCSR04_ECHO_PIN);
     }
-
-    // ----------------------------------------------------------------------
-    // setup
-    // ----------------------------------------------------------------------
 
     void DistanceSensor::setup()
     {
@@ -35,10 +27,6 @@ namespace Dough
     {
         _hcsr04->setHumidity(humidity);
     }
-
-    // ----------------------------------------------------------------------
-    // loop
-    // ----------------------------------------------------------------------
 
     Measurement DistanceSensor::read()
     {

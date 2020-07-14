@@ -2,10 +2,6 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
     HumiditySensor *HumiditySensor::Instance()
     {
         static HumiditySensor *_instance = new HumiditySensor();
@@ -14,18 +10,10 @@ namespace Dough
 
     HumiditySensor::HumiditySensor() : _logger("HUMIDITY") {}
 
-    // ----------------------------------------------------------------------
-    // setup
-    // ----------------------------------------------------------------------
-
     void HumiditySensor::setup()
     {
         SensorDHT11::Instance()->begin();
     }
-
-    // ----------------------------------------------------------------------
-    // loop
-    // ----------------------------------------------------------------------
 
     Measurement HumiditySensor::read()
     {
