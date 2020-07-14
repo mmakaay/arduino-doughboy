@@ -2,10 +2,6 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
     // I am using a singleton here, to make it possible to use the physical
     // DHT11 sensor from the two logical sensors TemperatureSensor and
     // HumiditySensor.
@@ -20,18 +16,15 @@ namespace Dough
         _dht = new DHT(DHT11_DATA_PIN, DHT11);
     }
 
-    // ----------------------------------------------------------------------
-    // setup
-    // ----------------------------------------------------------------------
-
     void SensorDHT11::begin()
     {
-        _dht->begin();
+        static bool begun = false;
+        if (!begun)
+        {
+            begun = true;
+            _dht->begin();
+        }
     }
-
-    // ----------------------------------------------------------------------
-    // loop
-    // ----------------------------------------------------------------------
 
     float SensorDHT11::readHumidity()
     {
@@ -42,4 +35,4 @@ namespace Dough
     {
         return _dht->readTemperature();
     }
-}
+} // namespace Dough

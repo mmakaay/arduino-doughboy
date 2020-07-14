@@ -54,7 +54,7 @@ namespace Dough
         void _setSpeedOfSound();
         float _speedOfSound;
         void _setEchoTimeout();
-        int _echoTimeout;
+        unsigned int _echoTimeout;
         float _samples[HCSR04_SAMPLES_TAKE];
         void _takeSamples();
         bool _haveEnoughSamples();

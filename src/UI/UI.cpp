@@ -2,10 +2,6 @@
 
 namespace Dough
 {
-    // ----------------------------------------------------------------------
-    // Constructor
-    // ----------------------------------------------------------------------
-
     UI *UI::_instance = nullptr;
 
     UI *UI::Instance()
@@ -23,10 +19,6 @@ namespace Dough
                led1(LED1_PIN),
                led2(LED2_PIN),
                led3(LED3_PIN) {}
-
-    // ----------------------------------------------------------------------
-    // Setup
-    // ----------------------------------------------------------------------
 
     void UI::setup()
     {
@@ -98,10 +90,6 @@ namespace Dough
         while (TC4->COUNT8.STATUS.bit.SYNCBUSY)
             ; // Wait for synchronization
     }
-
-    // ----------------------------------------------------------------------
-    // Loop
-    // ----------------------------------------------------------------------
 
     // Disables the TC4 interrupts, suspending timed async updates to
     // the user interface.

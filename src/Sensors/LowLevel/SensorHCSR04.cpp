@@ -64,7 +64,7 @@ namespace Dough
     void SensorHCSR04::_setEchoTimeout()
     {
         _echoTimeout = HCSR04_MAX_MM * 2 / _speedOfSound;
-        _logger.log("sfs", "Echo timeout = ", _echoTimeout, "Ms");
+        _logger.log("sis", "Echo timeout = ", _echoTimeout, "Ms");
     }
 
     void SensorHCSR04::_takeSamples()
