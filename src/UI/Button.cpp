@@ -9,19 +9,17 @@ namespace Dough
     // working. An interrupt service routine (ISR) function must be created
     // and linked to the button to get the interrupts working. Pattern:
     //
-    //   // Construct the button instance.
-    //   Button myButton(MYBUTTON_PIN);
-    //
     //   // A function for handling interrupts.
     //   void myButtonISR() {
     //       myButton.handleButtonState();
     //   }
     //
-    //   // Linking the function ot button interrupts.
-    //   myButton.onInterrupt(myButtonISR);
-    Button::Button(int pin)
+    //   // Construct the button instance.
+    //   Button myButton(MYBUTTON_PIN, myButtonISR);
+    Button::Button(int pin, ButtonISR isr)
     {
         _pin = pin;
+        attachInterrupt(digitalPinToInterrupt(_pin), isr, CHANGE);
     }
 
     void Button::setup()
@@ -29,30 +27,22 @@ namespace Dough
         pinMode(_pin, INPUT_PULLUP);
     }
 
-    // Assign an interrupt service routine (ISR) for handling button
-    // interrupts. The provided isr should relay interrupts to the
-    // handleButtonState() method of this class (see constructor docs).
-    void Button::onInterrupt(ButtonHandler isr)
-    {
-        attachInterrupt(digitalPinToInterrupt(_pin), isr, CHANGE);
-    }
-
     // Assign an event handler for short and long button presses.
     // When specific handlers for long and/or short presses are
     // configured as well, those have precedence over this one.
-    void Button::onPress(ButtonHandler handler)
+    void Button::onPress(ButtonISR handler)
     {
         _pressHandler = handler;
     }
 
     // Assign an event handler for long button presses.
-    void Button::onLongPress(ButtonHandler handler)
+    void Button::onLongPress(ButtonISR handler)
     {
         _longPressHandler = handler;
     }
 
     // Assign an event handler for short button presses.
-    void Button::onShortPress(ButtonHandler handler)
+    void Button::onShortPress(ButtonISR handler)
     {
         _shortPressHandler = handler;
     }

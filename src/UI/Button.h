@@ -18,7 +18,7 @@ namespace Dough
         READY_FOR_NEXT_PRESS
     } ButtonState;
 
-    typedef void (*ButtonHandler)();
+    typedef void (*ButtonISR)();
 
     // This class provides a simple interface for handling button presses.
     // Only a few events are supported:
@@ -30,21 +30,20 @@ namespace Dough
     class Button
     {
     public:
-        Button(int pin);
+        Button(int pin, ButtonISR isr);
         void setup();
         void loop();
-        void onInterrupt(ButtonHandler isr);
-        void onPress(ButtonHandler handler);
-        void onShortPress(ButtonHandler handler);
-        void onLongPress(ButtonHandler handler);
+        void onPress(ButtonISR handler);
+        void onShortPress(ButtonISR handler);
+        void onLongPress(ButtonISR handler);
         void clearEvents();
         void handleButtonState();
 
     private:
         int _pin;
-        ButtonHandler _pressHandler = nullptr;
-        ButtonHandler _shortPressHandler = nullptr;
-        ButtonHandler _longPressHandler = nullptr;
+        ButtonISR _pressHandler = nullptr;
+        ButtonISR _shortPressHandler = nullptr;
+        ButtonISR _longPressHandler = nullptr;
         bool _debounceState = false;
         unsigned long _debounceTimer = 0;
         ButtonState _state = UP;

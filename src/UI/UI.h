@@ -14,10 +14,8 @@ namespace Dough
     class UI
     {
     public:
-        UI();
+        UI(ButtonISR onoffButtonISR, ButtonISR setupButtonISR);
         void setup();
-        static void onoffButtonISR();
-        static void setupButtonISR();
         Button onoffButton;
         Button setupButton;
         void processButtonEvents();

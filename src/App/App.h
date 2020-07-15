@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "UI/UI.h"
 #include "App/Configuration.h"
+#include "App/callbacks.h"
 #include "Data/SensorController.h"
 #include "Sensors/TemperatureSensor.h"
 #include "Sensors/HumiditySensor.h"
@@ -33,13 +34,5 @@ namespace Dough
         Logger _logger;
     };
 }
-
-// Callback functions that need to live in the global namespace.
-void mqttOnConnectCallback(Dough::MQTT *mqtt);
-void mqttOnMessageCallback(String &topic, String &payload);
-void onoffButtonInterruptCallback();
-void setupButtonInterruptCallback();
-void sensorOnMeasureCallback();
-void sensorOnPublishCallback();
 
 #endif

@@ -2,12 +2,14 @@
 
 namespace Dough
 {
-    UI::UI() : onoffButton(ONOFF_BUTTON_PIN),
-               setupButton(SETUP_BUTTON_PIN),
-               _ledBuiltin(LED_BUILTIN),
-               _led1(LED1_PIN),
-               _led2(LED2_PIN),
-               _led3(LED3_PIN) {}
+    UI::UI(
+        ButtonISR onoffButtonISR,
+        ButtonISR setupButtonISR) : onoffButton(ONOFF_BUTTON_PIN, onoffButtonISR),
+                                    setupButton(SETUP_BUTTON_PIN, setupButtonISR),
+                                    _ledBuiltin(LED_BUILTIN),
+                                    _led1(LED1_PIN),
+                                    _led2(LED2_PIN),
+                                    _led3(LED3_PIN) {}
 
     void UI::setup()
     {
@@ -116,7 +118,7 @@ namespace Dough
         _led2.off();
         _led3.off();
     }
-    
+
     void UI::notifyConnectingToMQTT()
     {
         _led1.blink()->fast();
@@ -163,16 +165,16 @@ namespace Dough
     {
         _led3.off();
         delay(50);
-        _led3.on();        
+        _led3.on();
     }
 
     void UI::notifyNetworkActivity()
     {
         _led1.off();
         delay(50);
-        _led1.on();        
+        _led1.on();
     }
-    
+
     // Flash all LEDs, one at a time in a synchroneous manner, making
     // this work when the UI timer interrupt is inactive. This is used
     // as a "Hey, I'm awake!" signal from the device after booting up.
