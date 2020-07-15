@@ -5,7 +5,6 @@
 #include "Sensors/SensorBase.h"
 #include "Data/Measurement.h"
 #include "Network/MQTT.h"
-#include "UI/UI.h"
 
 namespace Dough
 {

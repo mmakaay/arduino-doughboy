@@ -4,10 +4,10 @@ namespace Dough
 {
     UI::UI() : onoffButton(ONOFF_BUTTON_PIN),
                setupButton(SETUP_BUTTON_PIN),
-               ledBuiltin(LED_BUILTIN),
-               led1(LED1_PIN),
-               led2(LED2_PIN),
-               led3(LED3_PIN) {}
+               _ledBuiltin(LED_BUILTIN),
+               _led1(LED1_PIN),
+               _led2(LED2_PIN),
+               _led3(LED3_PIN) {}
 
     void UI::setup()
     {
@@ -16,10 +16,10 @@ namespace Dough
         setupButton.setup();
 
         // Setup the LEDs.
-        ledBuiltin.setup();
-        led1.setup();
-        led2.setup();
-        led3.setup();
+        _ledBuiltin.setup();
+        _led1.setup();
+        _led2.setup();
+        _led3.setup();
 
         // Setup a timer interrupt that is used to update the
         // user interface (a.k.a. "LEDs") in parallel to other activities.
@@ -104,66 +104,73 @@ namespace Dough
     // something else.
     void UI::updateLEDs()
     {
-        ledBuiltin.loop();
-        led1.loop();
-        led2.loop();
-        led3.loop();
+        _ledBuiltin.loop();
+        _led1.loop();
+        _led2.loop();
+        _led3.loop();
     }
 
     void UI::notifyConnectingToWifi()
     {
-        led1.blink()->slow();
-        led2.off();
-        led3.off();
+        _led1.blink()->slow();
+        _led2.off();
+        _led3.off();
     }
     
     void UI::notifyConnectingToMQTT()
     {
-        led1.blink()->fast();
-        led2.off();
-        led3.off();
+        _led1.blink()->fast();
+        _led2.off();
+        _led3.off();
+    }
+
+    void UI::notifyConnected()
+    {
+        _led1.on();
+        _led2.off();
+        _led3.off();
     }
 
     void UI::notifyWaitingForConfiguration()
     {
-        led1.on();
-        led2.blink()->slow();
-        led3.off();
+        _led1.on();
+        _led2.blink()->slow();
+        _led3.off();
     }
 
     void UI::notifyCalibrating()
     {
-        led1.on();
-        led2.blink()->fast();
-        led3.off();
+        _led1.on();
+        _led2.blink()->fast();
+        _led3.off();
     }
 
     void UI::notifyMeasurementsActive()
     {
-        led1.on();
-        led2.on();
-        led3.on();
+        _led1.on();
+        _led2.on();
+        _led3.on();
     }
 
     void UI::notifyMeasurementsPaused()
     {
-        led1.on();
-        led2.on();
-        led3.pulse();
+        _led1.on();
+        _led2.on();
+        _led3.pulse();
     }
 
     void UI::notifySensorActivity()
     {
-        led3.off();
+        _led3.off();
         delay(50);
-        led3.on();        
+        _led3.on();        
     }
 
     void UI::notifyNetworkActivity()
     {
-        led1.off();
+        _led1.off();
         delay(50);
-        led1.on();        
+        _led1.on();        
     }
     
     // Flash all LEDs, one at a time in a synchroneous manner, making
@@ -171,17 +178,17 @@ namespace Dough
     // as a "Hey, I'm awake!" signal from the device after booting up.
     void UI::_flash_all_leds()
     {
-        ledBuiltin.on();
+        _ledBuiltin.on();
         delay(100);
-        ledBuiltin.off();
-        led1.on();
+        _ledBuiltin.off();
+        _led1.on();
         delay(100);
-        led1.off();
-        led2.on();
+        _led1.off();
+        _led2.on();
         delay(100);
-        led2.off();
-        led3.on();
+        _led2.off();
+        _led3.on();
         delay(100);
-        led3.off();
+        _led3.off();
     }
 } // namespace Dough

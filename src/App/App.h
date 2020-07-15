@@ -2,6 +2,7 @@
 #define DOUGH_APP_H
 
 #include <Arduino.h>
+#include "UI/UI.h"
 #include "App/Configuration.h"
 #include "Data/SensorController.h"
 #include "Sensors/TemperatureSensor.h"

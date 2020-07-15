@@ -1,7 +1,7 @@
 #include "main.h"
 
 // TOOD: implement the calibration logic
-// TODO: don't make sensors instances
+// TODO: don't make sensors instances anymore, now they are handled by App as the only singleton
 // TODO: see what more stuff can be moved to the UI code. Maybe state to UI state translation ought to be there as well
 
 DoughBoyState state = CONFIGURING;

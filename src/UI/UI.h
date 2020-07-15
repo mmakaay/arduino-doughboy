@@ -20,10 +20,6 @@ namespace Dough
         static void setupButtonISR();
         Button onoffButton;
         Button setupButton;
-        LED ledBuiltin;
-        LED led1;
-        LED led2;
-        LED led3;
         void processButtonEvents();
         void clearButtonEvents();
         void updateLEDs();
@@ -31,6 +27,7 @@ namespace Dough
         void suspend();
         void notifyConnectingToWifi();
         void notifyConnectingToMQTT();
+        void notifyConnected();
         void notifyWaitingForConfiguration();
         void notifyCalibrating();
         void notifyMeasurementsActive();
@@ -39,6 +36,10 @@ namespace Dough
         void notifyNetworkActivity();
 
     private:
+        LED _ledBuiltin;
+        LED _led1;
+        LED _led2;
+        LED _led3;
         void _setupTimerInterrupt();
         static UI *_instance;
         void _flash_all_leds();
