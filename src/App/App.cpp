@@ -9,6 +9,7 @@ namespace Dough
     }
 
     App::App() : config(),
+                 ui(),
                  wifi(),
                  mqtt(
                      &wifi,
@@ -19,26 +20,30 @@ namespace Dough
                      "temperature",
                      TemperatureSensor::Instance(),
                      TEMPERATURE_AVERAGE_STORAGE,
-                     TEMPERATURE_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     TEMPERATURE_MEASURE_INTERVAL, sensorOnMeasureCallback,
+                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
                  humiditySensor(
                      &mqtt,
                      "humidity",
                      HumiditySensor::Instance(),
                      HUMIDITY_AVERAGE_STORAGE,
-                     HUMIDITY_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     HUMIDITY_MEASURE_INTERVAL, sensorOnMeasureCallback,
+                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
                  distanceSensor(
                      &mqtt,
                      "distance",
                      DistanceSensor::Instance(),
                      DISTANCE_AVERAGE_STORAGE,
-                     DISTANCE_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     DISTANCE_MEASURE_INTERVAL, sensorOnMeasureCallback,
+                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
                  _logger("APP") {}
 
     void App::setup()
     {
+        ui.setup();
+        ui.onoffButton.onInterrupt(::onoffButtonInterruptCallback);
+        ui.setupButton.onInterrupt(::setupButtonInterruptCallback);
+
         wifi.setup();
         mqtt.setup();
         temperatureSensor.setup();
@@ -50,9 +55,14 @@ namespace Dough
     {
         if (config.isOk())
         {
+            // Get measurements from the sensors. Suspend the user interface
+            // interrupts in the meanwhile, to not disturb the timing-sensitive
+            // sensor readings.
+            ui.suspend();
             temperatureSensor.loop();
             humiditySensor.loop();
             distanceSensor.loop();
+            ui.resume();
         }
     }
 
@@ -89,4 +99,33 @@ void mqttOnMessageCallback(String &topic, String &payload)
     {
         callbackLogger.log("ss", "ERROR - Unhandled MQTT message, topic = ", topic.c_str());
     }
+}
+
+void onoffButtonInterruptCallback()
+{
+    Dough::App::Instance()->ui.onoffButton.handleButtonState();
+}
+
+void setupButtonInterruptCallback()
+{
+    Dough::App::Instance()->ui.setupButton.handleButtonState();
+}
+
+void sensorOnMeasureCallback()
+{
+    Dough::App::Instance()->ui.notifySensorActivity();
+}
+
+void sensorOnPublishCallback()
+{
+    Dough::App::Instance()->ui.notifyNetworkActivity();
+}
+
+// This callback is called when the TC4 timer from the UI code hits an overflow
+// interrupt. It is defined outside the Dough namespace, because TC4_Handler is
+// a hard-coded root namespace function name.
+void TC4_Handler()
+{
+    Dough::App::Instance()->ui.updateLEDs();
+    REG_TC4_INTFLAG = TC_INTFLAG_OVF; // Clear the OVF interrupt flag.
 }

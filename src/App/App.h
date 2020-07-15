@@ -16,6 +16,7 @@ namespace Dough
     public:
         static App *Instance();
         Configuration config;
+        UI ui;
         WiFi wifi;
         MQTT mqtt;
         SensorController temperatureSensor;
@@ -33,7 +34,11 @@ namespace Dough
 }
 
 // Callback functions that need to live in the global namespace.
-void mqttOnConnectCallback(Dough::MQTT* mqtt);
+void mqttOnConnectCallback(Dough::MQTT *mqtt);
 void mqttOnMessageCallback(String &topic, String &payload);
+void onoffButtonInterruptCallback();
+void setupButtonInterruptCallback();
+void sensorOnMeasureCallback();
+void sensorOnPublishCallback();
 
 #endif

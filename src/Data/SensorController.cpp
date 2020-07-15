@@ -9,15 +9,18 @@ namespace Dough
         SensorBase *sensor,
         unsigned int storageSize,
         unsigned int minimumMeasureTime,
-        unsigned int minimumPublishTime)
+        SensorControllerCallback onMeasure,
+        unsigned int minimumPublishTime,
+        SensorControllerCallback onPublish)
     {
         _mqtt = mqtt;
         _mqttKey = mqttKey;
         _sensor = sensor;
         _storageSize = storageSize;
         _minimumMeasureTime = minimumMeasureTime;
+        _onMeasure = onMeasure;
         _minimumPublishTime = minimumPublishTime;
-        _ui = UI::Instance();
+        _onPublish = onPublish;
     }
 
     void SensorController::setup()
@@ -42,10 +45,12 @@ namespace Dough
     {
         if (_mustMeasure())
         {
+            _onMeasure();
             _measure();
         }
         if (_mustPublish())
         {
+            _onPublish();
             _publish();
         }
     }
@@ -69,19 +74,7 @@ namespace Dough
     {
         _lastMeasuredAt = millis();
         
-        // Quickly dip the LED to indicate that a measurement has started.
-        // This is done synchroneously, because we suspend the timer interrupts
-        // in the upcoming code.
-        _ui->led3.off();
-        delay(50);
-        _ui->led3.on();
-
-        // Read a measurement from the sensor. Suspend the user interface
-        // interrupts in the meanwhile, to not disturb the timing-sensitive
-        // sensor readings.
-        _ui->suspend();
         _store(_sensor->read());
-        _ui->resume();
     }
 
     bool SensorController::_mustPublish()
@@ -139,14 +132,6 @@ namespace Dough
 
     void SensorController::_publish()
     {
-        // Quickly dip the LED to indicate that a publish has started.
-        // This is done synchroneously, because the upcoming code is too
-        // fast normally to register a LED going off and on again during
-        // the operation.
-        _ui->led1.off();
-        delay(50);
-        _ui->led1.on();
-
         auto average = getAverage();
         auto last = getLast();
 

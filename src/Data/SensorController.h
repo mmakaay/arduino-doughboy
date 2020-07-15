@@ -9,6 +9,8 @@
 
 namespace Dough
 {
+    typedef void (*SensorControllerCallback)();
+    
     // This class is used to store measurements for a sensor and to keep
     // track of running totals for handling average computations.
     // It also provides functionality to decide when to read a measurement
@@ -32,16 +34,24 @@ namespace Dough
         // @param minimumMeasureTime
         //     The number of seconds after which to read the next measurement
         //     from the sensor.
+        // @param onMeasure
+        //     A callback function that is called right before a measurement
+        //     is taken.
         // @param minimumPublishTime
         //     The number of seconds after which to forcibly publish measurements
         //     to MQTT, even when no significant changes to measurements were seen.
+        // @param onPublish
+        //     A callback function that is called right before a measurement
+        //     is published.
         SensorController(
             MQTT *mqtt,
             const char *mqttKey,
             SensorBase *sensor,
             unsigned int storageSize,
             unsigned int minimumMeasureTime,
-            unsigned int minimumPublishTime);
+            SensorControllerCallback onMeasure,
+            unsigned int minimumPublishTime,
+            SensorControllerCallback onPublish);
         void setup();
         void loop();
         Measurement getLast();
@@ -50,7 +60,6 @@ namespace Dough
 
     private:
         MQTT *_mqtt;
-        UI *_ui;
         const char *_mqttKey;
         char *_mqttAverageKey;
         SensorBase *_sensor;
@@ -60,10 +69,12 @@ namespace Dough
         unsigned int _averageCount = 0;
         unsigned int _index = 0;
         bool _mustMeasure();
+        SensorControllerCallback _onMeasure;
         void _measure();
         unsigned int _minimumMeasureTime; 
         unsigned long _lastMeasuredAt = 0;
         bool _mustPublish();
+        SensorControllerCallback _onPublish ;
         void _publish();
         unsigned int _minimumPublishTime;
         unsigned long _lastPublishedAt = 0;

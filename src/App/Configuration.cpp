@@ -2,10 +2,7 @@
 
 namespace Dough
 {
-    Configuration::Configuration() : _logger("CONFIG")
-    {
-//        _mqtt = MQTT::Instance();
-    }
+    Configuration::Configuration() : _logger("CONFIG") {}
 
     void Configuration::setup()
     {

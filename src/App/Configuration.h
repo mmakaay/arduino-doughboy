@@ -2,8 +2,6 @@
 #define DOUGH_CONFIG_H
 
 #include <Arduino.h>
-//#include "App/App.h"
-#include "Network/MQTT.h"
 #include "UI/Logger.h"
 #include "Sensors/LowLevel/SensorHCSR04.h"
 
@@ -18,8 +16,6 @@ namespace Dough
     public:
         Configuration();
         void setup();
-        static void handleMqttConnect(MQTT *mqtt);
-        static void handleMqttMessage(String &key, String &value);
         void setContainerHeight(int height);
         unsigned int getContainerHeight();
         void setTemperatureOffset(int offset);
@@ -27,7 +23,6 @@ namespace Dough
         bool isOk();
 
     private:
-        MQTT *_mqtt;
         Logger _logger;
         unsigned int _containerHeight;
         bool _containerHeightSet;

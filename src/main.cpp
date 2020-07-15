@@ -1,6 +1,7 @@
 #include "main.h"
 
 // TOOD: implement the calibration logic
+// TODO: don't make sensors instances
 // TODO: see what more stuff can be moved to the UI code. Maybe state to UI state translation ought to be there as well
 
 DoughBoyState state = CONFIGURING;
@@ -10,20 +11,18 @@ void setup()
 {
     Dough::Logger::setup();
     logger.log("s", "Initializing device");
-    Dough::App::Instance()->setup();
-    auto ui = Dough::UI::Instance();
-    ui->setup();
-    ui->onoffButton.onPress(handleOnoffButtonPress);
-    ui->setupButton.onPress(handleSetupButtonPress);
+    auto app = Dough::App::Instance();
+    app->setup();
+    app->ui.onoffButton.onPress(handleOnoffButtonPress);
+    app->ui.setupButton.onPress(handleSetupButtonPress);
     logger.log("s", "Initialization completed, starting device");
 }
 
 void loop()
 {
     auto app = Dough::App::Instance();
-    auto ui = Dough::UI::Instance();
 
-    ui->processButtonEvents();
+    app->ui.processButtonEvents();
 
     if (!setupNetworkConnection())
     {
@@ -66,7 +65,6 @@ bool setupNetworkConnection()
     static auto connectionState = CONNECTING_WIFI;
 
     auto app = Dough::App::Instance();
-    auto ui = Dough::UI::Instance();
 
     if (!app->wifi.isConnected())
     {
@@ -79,9 +77,7 @@ bool setupNetworkConnection()
             logger.log("s", "Connecting to the WiFi network ...");
         }
         connectionState = CONNECTING_WIFI;
-        ui->led1.blink()->slow();
-        ui->led2.off();
-        ui->led3.off();
+        app->ui.notifyConnectingToWifi();
         app->wifi.connect();
     }
     if (app->wifi.isConnected() && !app->mqtt.isConnected())
@@ -95,9 +91,7 @@ bool setupNetworkConnection()
             logger.log("s", "Connecting to the MQTT broker ...");
         }
         connectionState = CONNECTING_MQTT;
-        ui->led1.blink()->fast();
-        ui->led2.off();
-        ui->led3.off();
+        app->ui.notifyConnectingToMQTT();
         app->mqtt.connect();
         delay(1000); // purely costmetic, to make the faster LED blinking noticable
     }
@@ -106,10 +100,8 @@ bool setupNetworkConnection()
         if (connectionState != CONNECTED)
         {
             logger.log("s", "Connection to MQTT broker established");
-            ui->led1.on();
-            ui->led2.off();
-            ui->led3.off();
-            ui->clearButtonEvents();
+            app->ui.notifyConnected();
+            app->ui.clearButtonEvents();
             connectionState = CONNECTED;
             setStateToConfiguring();
         }
@@ -137,44 +129,36 @@ void handleSetupButtonPress()
 
 void setStateToConfiguring()
 {
-    auto ui = Dough::UI::Instance();
+    auto app = Dough::App::Instance();
     logger.log("s", "Waiting for configuration ...");
     state = CONFIGURING;
-    ui->led1.on();
-    ui->led2.blink()->fast();
-    ui->led3.off();
-    Dough::App::Instance()->mqtt.publish("state", "configuring");
+    app->ui.notifyWaitingForConfiguration();
+    app->mqtt.publish("state", "configuring");
 }
 
 void setStateToMeasuring()
 {
-    auto ui = Dough::UI::Instance();
+    auto app = Dough::App::Instance();
     logger.log("s", "Starting measurements");
     state = MEASURING;
-    ui->led1.on();
-    ui->led2.on();
-    ui->led3.on();
-    Dough::App::Instance()->mqtt.publish("state", "measuring");
+    app->ui.notifyMeasurementsActive();
+    app->mqtt.publish("state", "measuring");
 }
 
 void setStateToPaused()
 {
-    auto ui = Dough::UI::Instance();
+    auto app = Dough::App::Instance();
     logger.log("s", "Pausing measurements");
     state = PAUSED;
-    ui->led1.on();
-    ui->led2.on();
-    ui->led3.pulse();
-    Dough::App::Instance()->mqtt.publish("state", "paused");
+    app->ui.notifyMeasurementsPaused();
+    app->mqtt.publish("state", "paused");
 }
 
 void setStateToCalibrating()
 {
-    auto ui = Dough::UI::Instance();
+    auto app = Dough::App::Instance();
     logger.log("s", "Requested device calibration");
     state = CALIBRATING;
-    ui->led1.on();
-    ui->led2.blink()->slow();
-    ui->led3.off();
-    Dough::App::Instance()->mqtt.publish("state", "calibrating");
+    app->ui.notifyCalibrating();
+    app->mqtt.publish("state", "calibrating");
 }

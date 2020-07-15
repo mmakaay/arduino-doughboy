@@ -2,17 +2,6 @@
 
 namespace Dough
 {
-    UI *UI::_instance = nullptr;
-
-    UI *UI::Instance()
-    {
-        if (UI::_instance == nullptr)
-        {
-            UI::_instance = new UI();
-        }
-        return UI::_instance;
-    }
-
     UI::UI() : onoffButton(ONOFF_BUTTON_PIN),
                setupButton(SETUP_BUTTON_PIN),
                ledBuiltin(LED_BUILTIN),
@@ -24,9 +13,7 @@ namespace Dough
     {
         // Setup the buttons.
         onoffButton.setup();
-        onoffButton.onInterrupt(UI::onoffButtonISR);
         setupButton.setup();
-        setupButton.onInterrupt(UI::setupButtonISR);
 
         // Setup the LEDs.
         ledBuiltin.setup();
@@ -45,16 +32,6 @@ namespace Dough
 
         // Enable the timer interrupt handling.
         resume();
-    }
-
-    void UI::onoffButtonISR()
-    {
-        UI::Instance()->onoffButton.handleButtonState();
-    }
-
-    void UI::setupButtonISR()
-    {
-        UI::Instance()->setupButton.handleButtonState();
     }
 
     // Setup a timer interrupt for updating the GUI. Unfortunately, the standard
@@ -91,19 +68,19 @@ namespace Dough
             ; // Wait for synchronization
     }
 
-    // Disables the TC4 interrupts, suspending timed async updates to
-    // the user interface.
-    void UI::suspend()
-    {
-        NVIC_DisableIRQ(TC4_IRQn);
-    }
-
     // Enables the TC4 interrupts in the Nested Vector InterruptController (NVIC),
     // starting timed async updates for the user interface.
     void UI::resume()
     {
         NVIC_SetPriority(TC4_IRQn, 0); // Set NVIC priority for TC4 to 0 (highest)
         NVIC_EnableIRQ(TC4_IRQn);      // Enable TC4 interrupts
+    }
+
+    // Disables the TC4 interrupts, suspending timed async updates to
+    // the user interface.
+    void UI::suspend()
+    {
+        NVIC_DisableIRQ(TC4_IRQn);
     }
 
     // Fire pending button events.
@@ -125,7 +102,7 @@ namespace Dough
     // the timer interrupt code from above. The timer interrupt based invocation
     // makes it possible to do LED updates, while the device is busy doing
     // something else.
-    void UI::updatedLEDs()
+    void UI::updateLEDs()
     {
         ledBuiltin.loop();
         led1.loop();
@@ -133,7 +110,65 @@ namespace Dough
         led3.loop();
     }
 
-    // Flash all LEDs, one at a time.
+    void UI::notifyConnectingToWifi()
+    {
+        led1.blink()->slow();
+        led2.off();
+        led3.off();
+    }
+    
+    void UI::notifyConnectingToMQTT()
+    {
+        led1.blink()->fast();
+        led2.off();
+        led3.off();
+    }
+
+    void UI::notifyWaitingForConfiguration()
+    {
+        led1.on();
+        led2.blink()->slow();
+        led3.off();
+    }
+
+    void UI::notifyCalibrating()
+    {
+        led1.on();
+        led2.blink()->fast();
+        led3.off();
+    }
+
+    void UI::notifyMeasurementsActive()
+    {
+        led1.on();
+        led2.on();
+        led3.on();
+    }
+
+    void UI::notifyMeasurementsPaused()
+    {
+        led1.on();
+        led2.on();
+        led3.pulse();
+    }
+
+    void UI::notifySensorActivity()
+    {
+        led3.off();
+        delay(50);
+        led3.on();        
+    }
+
+    void UI::notifyNetworkActivity()
+    {
+        led1.off();
+        delay(50);
+        led1.on();        
+    }
+    
+    // Flash all LEDs, one at a time in a synchroneous manner, making
+    // this work when the UI timer interrupt is inactive. This is used
+    // as a "Hey, I'm awake!" signal from the device after booting up.
     void UI::_flash_all_leds()
     {
         ledBuiltin.on();
@@ -150,12 +185,3 @@ namespace Dough
         led3.off();
     }
 } // namespace Dough
-
-// This callback is called when the TC4 timer hits an overflow interrupt.
-// Defined outside the Dough namespace, because TC4_Handler is a hard-coded
-// root namespace function name.
-void TC4_Handler()
-{
-    Dough::UI::Instance()->updatedLEDs();
-    REG_TC4_INTFLAG = TC_INTFLAG_OVF; // Clear the OVF interrupt flag.
-}
