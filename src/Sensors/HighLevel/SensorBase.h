@@ -10,6 +10,7 @@ namespace Dough
     {
     public:
         virtual void setup();
+        virtual const char* getName();
         virtual Measurement read();
         virtual unsigned int getPrecision();
     };

@@ -4,7 +4,10 @@ namespace Dough
 {
     Logger::Logger(const char *section)
     {
-        _section = section;
+        strncpy(_section, section, sizeof(_section)/sizeof(_section[0]));
+        for (unsigned int i = 0; i < strlen(_section); i++) {
+            _section[i] = toupper(_section[i]);
+        }
     }
 
     void Logger::setup()

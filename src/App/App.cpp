@@ -14,23 +14,14 @@ namespace Dough
                  mqtt(&wifi, mqttOnConnectCallback, mqttOnMessageCallback),
                  sensorControllerPlugin(&mqtt, &ui),
                  distanceSensor(
-                     &sensorControllerPlugin,
-                     &mqtt, "distance", distanceSensorX,
-                     DISTANCE_AVERAGE_STORAGE,
-                     DISTANCE_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     new DistanceSensor(), &sensorControllerPlugin,
+                     DISTANCE_AVERAGE_STORAGE, DISTANCE_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
                  temperatureSensor(
-                     &sensorControllerPlugin,
-                     &mqtt, "temperature", temperatureSensorX,
-                     TEMPERATURE_AVERAGE_STORAGE,
-                     TEMPERATURE_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     new TemperatureSensor(), &sensorControllerPlugin,
+                     TEMPERATURE_AVERAGE_STORAGE, TEMPERATURE_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
                  humiditySensor(
-                     &sensorControllerPlugin,
-                     &mqtt, "humidity", humiditySensorX,
-                     HUMIDITY_AVERAGE_STORAGE,
-                     HUMIDITY_MEASURE_INTERVAL,
-                     MINIMUM_PUBLISH_INTERVAL),
+                     new HumiditySensor(), &sensorControllerPlugin,
+                     HUMIDITY_AVERAGE_STORAGE, HUMIDITY_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
                  _logger("APP") {}
 
     void App::setup()
@@ -50,14 +41,10 @@ namespace Dough
             return;
         }
 
-        // Get measurements from the sensors. Suspend the user interface
-        // interrupts in the meanwhile, to not disturb the timing-sensitive
-        // sensor readings.
-        ui.suspend();
+        // Get measurements from the sensors.
         temperatureSensor.loop();
         humiditySensor.loop();
         distanceSensor.loop();
-        ui.resume();
     }
 
     void App::clearHistory()

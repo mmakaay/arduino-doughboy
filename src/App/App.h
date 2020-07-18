@@ -23,11 +23,8 @@ namespace Dough
         WiFi wifi;
         MQTT mqtt;
         SensorControllerPlugin sensorControllerPlugin;
-        DistanceSensor distanceSensorX;
         SensorController distanceSensor;
-        TemperatureSensor temperatureSensorX;
         SensorController temperatureSensor;
-        HumiditySensor humiditySensorX;
         SensorController humiditySensor;
 
         void setup();

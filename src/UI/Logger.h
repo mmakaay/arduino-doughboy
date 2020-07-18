@@ -1,7 +1,8 @@
 #ifndef DOUGH_LOGGER_H
 #define DOUGH_LOGGER_H
 
-#define LOGGER_PREFIX_BUFLEN 16
+#define LOGGER_SECTION_BUFLEN 12
+#define LOGGER_PREFIX_BUFLEN LOGGER_SECTION_BUFLEN+3
 #define LOGGER_PREFIX_FORMAT "%11s | "
 
 #include <Arduino.h>
@@ -23,7 +24,7 @@ namespace Dough
         void resume();
 
     private:
-        const char *_section;
+        char _section[LOGGER_SECTION_BUFLEN];
         bool _suspended = false;
     };
 

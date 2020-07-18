@@ -39,7 +39,7 @@ void setupButtonInterruptCallback()
 
 // This callback is called when the TC4 timer from the UI code hits an overflow
 // interrupt. It is defined outside the Dough namespace, because TC4_Handler is
-// a hard-coded root namespace function name.
+// a hard-coded, root namespace function name.
 void TC4_Handler()
 {
     Dough::App::Instance()->ui.updateLEDs();

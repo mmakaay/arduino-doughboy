@@ -14,9 +14,10 @@ namespace Dough
     {
     public:
         DistanceSensor();
+        virtual void setup();
+        virtual const char* getName();
         void setTemperature(int temperature);
         void setHumidity(int humidity);
-        virtual void setup();
         virtual Measurement read();
         virtual unsigned int getPrecision();
 

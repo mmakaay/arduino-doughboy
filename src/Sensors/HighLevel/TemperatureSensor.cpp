@@ -2,11 +2,16 @@
 
 namespace Dough
 {
-    TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
+    TemperatureSensor::TemperatureSensor() : _logger(getName()) {}
 
     void TemperatureSensor::setup()
     {
         SensorDHT11::Instance()->begin();
+    }
+
+    const char* TemperatureSensor::getName()
+    {
+        return "temperature";
     }
 
     Measurement TemperatureSensor::read()

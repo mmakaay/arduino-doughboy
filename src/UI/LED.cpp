@@ -2,10 +2,7 @@
 
 namespace Dough
 {
-    LED::LED(int pin)
-    {
-        _pin = pin;
-    }
+    LED::LED(int pin) : _pin(pin) {}
 
     void LED::setup()
     {

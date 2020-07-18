@@ -2,14 +2,17 @@
 
 namespace Dough
 {
-    DistanceSensor::DistanceSensor() : _logger("DISTANCE")
-    {
-        _hcsr04 = new SensorHCSR04(HCSR04_TRIG_PIN, HCSR04_ECHO_PIN);
-    }
+    DistanceSensor::DistanceSensor() : _logger(getName()),
+                                       _hcsr04(new SensorHCSR04(HCSR04_TRIG_PIN, HCSR04_ECHO_PIN)) {}
 
     void DistanceSensor::setup()
     {
         _hcsr04->setup();
+    }
+
+    const char* DistanceSensor::getName()
+    {
+        return "distance";
     }
 
     void DistanceSensor::setTemperature(int temperature)

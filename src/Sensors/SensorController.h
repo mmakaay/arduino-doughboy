@@ -24,7 +24,7 @@ namespace Dough
             virtual void beforeMeasure(SensorController *controller) {};
             virtual void afterMeasure(SensorController *controller) {};
             virtual void beforePublish(SensorController *controller) {};
-            virtual void doPublish(SensorController *controller) {};
+            virtual void doPublish(SensorController *controller, Measurement last, Measurement average) {};
             virtual void afterPublish(SensorController *controller) {};
     };
 
@@ -33,67 +33,59 @@ namespace Dough
     public:
         // Create a new Measurements object.
         //
-        // @param plugin
-        //     The Dough::SensorControllerPluginBase to use.
-        // @param mqtt
-        //     The Dough::MQTT object, which is connected to the MQTT broker.
-        // @param mqttKey
-        //     The key to use when publishing sensor values to MQTT.
-        //     The full key will be "<prefix>/<mqttKey>" for measurement values
-        //     and "<prefix>/<mqttKey>/average" for average values.
         // @param sensor
-        //     The sensor to read, implements SensorBase.
+        //     The Dough::SensorBase implementation to wrap in this controller.
+        // @param plugin
+        //     The Dough::SensorControllerPluginBase implementation to use.
+        //     This plugin is used to decouple network / user interface functionality
+        //     from the sensor controller code.
         // @param storageSize
         //     Number of measurements to keep track of for computing an average.
         // @param minimumMeasureTime
         //     The number of seconds after which to read the next measurement
         //     from the sensor.
-        // @param onMeasure
-        //     A callback function that is called right before a measurement
-        //     is taken using the contained sensor object.
         // @param minimumPublishTime
         //     The number of seconds after which to forcibly publish measurements
         //     to MQTT, even when no significant changes to measurements were seen.
-        // @param onPublish
-        //     A callback function that is called right before a measurement
-        //     is published.
+        //     "Significant change" is defined by the Dough::SensorBase implementation.
         SensorController(
+            SensorBase *sensor,
             SensorControllerPluginBase *plugin,
-            MQTT *mqtt,
-            const char *mqttKey,
-            SensorBase &sensor,
             unsigned int storageSize,
             unsigned int minimumMeasureTime,
             unsigned int minimumPublishTime);
+        const char *getSensorName();
         void setup();
         void loop();
-        Measurement getLast();
-        Measurement getAverage();
         void clearHistory();
 
     private:
+        SensorBase *_sensor;
         SensorControllerPluginBase *_plugin;
-        MQTT *_mqtt;
-        const char *_mqttKey;
-        char *_mqttAverageKey;
-        SensorBase &_sensor;
+        Measurement _getLast();
+        Measurement _getAverage();
+
+        // Members related to the measurement storage.
         Measurement **_storage;
         unsigned int _storageSize;
         int _averageSum = 0;
         unsigned int _averageCount = 0;
         unsigned int _index = 0;
+        void _store(Measurement measurement);
+        unsigned int _next();
+
+        // Members used for controlling measurements.
         bool _mustMeasure();
         void _measure();
         unsigned int _minimumMeasureTime;
         unsigned long _lastMeasuredAt = 0;
+
+        // Members used for controlling publishing of measurements.
         bool _mustPublish();
-        void _publish();
         unsigned int _minimumPublishTime;
         unsigned long _lastPublishedAt = 0;
         Measurement _lastPublished;
         Measurement _lastPublishedAverage;
-        void _store(Measurement measurement);
-        unsigned int _next();
     };
 } // namespace Dough
 

@@ -4,32 +4,29 @@
 namespace Dough
 {
     SensorController::SensorController(
+        SensorBase *sensor,
         SensorControllerPluginBase *plugin,
-        MQTT *mqtt,
-        const char *mqttKey,
-        SensorBase &sensor,
         unsigned int storageSize,
         unsigned int minimumMeasureTime,
-        unsigned int minimumPublishTime) : _plugin(plugin),
-                                           _mqtt(mqtt),
-                                           _sensor(sensor)
+        unsigned int minimumPublishTime) : _sensor(sensor),
+                                           _plugin(plugin),
+                                           _storageSize(storageSize),
+                                           _minimumMeasureTime(minimumMeasureTime),
+                                           _minimumPublishTime(minimumPublishTime) {}
+
+    const char* SensorController::getSensorName()
     {
-        _mqttKey = mqttKey;
-        _storageSize = storageSize;
-        _minimumMeasureTime = minimumMeasureTime;
-        _minimumPublishTime = minimumPublishTime;
+        return _sensor->getName();
     }
 
     void SensorController::setup()
     {
-        _sensor.setup();
+        _sensor->setup();
 
-        // Format the key to use for publishing the average (i.e. "<mqttKey>/average").
-        auto lenAverageKey = strlen(_mqttKey) + 9; // +9 for the "/average\0" suffix
-        _mqttAverageKey = new char[lenAverageKey];
-        snprintf(_mqttAverageKey, lenAverageKey, "%s/average", _mqttKey);
-
-        // Initialize the storage for holding the measurements.
+        // Initialize the storage for holding measurements. This storage is used
+        // as a circular buffer, and it helps in computing an over time average
+        // value for the collected measurements. The bigger the storage size, the
+        // more values will be included for the average computation.
         _storage = new Measurement *[_storageSize];
         for (unsigned int i = 0; i < _storageSize; i++)
         {
@@ -49,10 +46,13 @@ namespace Dough
         if (_mustPublish())
         {
             _plugin->beforePublish(this);
-            Serial.println("CALLING doPublish() from plugin"); // DEBUG XXX
-            _plugin->doPublish(this);
+            auto average = _getAverage();
+            auto last = _getLast();
+            _lastPublishedAt = millis();
+            average.copyTo(&_lastPublishedAverage);
+            last.copyTo(&_lastPublished);
+            _plugin->doPublish(this, last, average);
             _plugin->afterPublish(this);
-            _publish();
         }
     }
 
@@ -75,12 +75,12 @@ namespace Dough
     {
         _lastMeasuredAt = millis();
 
-        _store(_sensor.read());
+        _store(_sensor->read());
     }
 
     bool SensorController::_mustPublish()
     {
-        Measurement lastMeasurement = getLast();
+        Measurement lastMeasurement = _getLast();
 
         // When the measurement failed, then there's no need to publish it.
         if (lastMeasurement.ok == false)
@@ -103,7 +103,7 @@ namespace Dough
             return _lastPublishedAt == 0 || delta >= (_minimumPublishTime * 1000);
         }
 
-        auto precision = _sensor.getPrecision();
+        auto precision = _sensor->getPrecision();
 
         // When there is a significant change in the sensor value, then publish.
         if (abs(_lastPublished.value - lastMeasurement.value) >= precision)
@@ -111,7 +111,7 @@ namespace Dough
             return true;
         }
 
-        auto average = getAverage();
+        auto average = _getAverage();
 
         // When there is a significant change in the average value, then publish.
         if (average.ok && abs(_lastPublishedAverage.value - average.value) >= precision)
@@ -129,19 +129,6 @@ namespace Dough
 
         // Well, we're out of options. No reason to publish the data right now.
         return false;
-    }
-
-    void SensorController::_publish()
-    {
-        auto average = getAverage();
-        auto last = getLast();
-
-        _mqtt->publish(_mqttKey, last);
-        _mqtt->publish(_mqttAverageKey, average);
-
-        _lastPublishedAt = millis();
-        average.copyTo(&_lastPublishedAverage);
-        last.copyTo(&_lastPublished);
     }
 
     void SensorController::_store(Measurement measurement)
@@ -177,12 +164,12 @@ namespace Dough
         return _index;
     }
 
-    Measurement SensorController::getLast()
+    Measurement SensorController::_getLast()
     {
         return *_storage[_index];
     }
 
-    Measurement SensorController::getAverage()
+    Measurement SensorController::_getAverage()
     {
         return _averageCount > 0
                    ? Measurement::Value(round(_averageSum / _averageCount))

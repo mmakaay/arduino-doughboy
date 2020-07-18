@@ -15,6 +15,7 @@ namespace Dough
     public:
         HumiditySensor();
         virtual void setup();
+        virtual const char* getName();
         virtual Measurement read();
         virtual unsigned int getPrecision();
 

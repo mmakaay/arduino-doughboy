@@ -2,11 +2,16 @@
 
 namespace Dough
 {
-    HumiditySensor::HumiditySensor() : _logger("HUMIDITY") {}
+    HumiditySensor::HumiditySensor() : _logger(getName()) {}
 
     void HumiditySensor::setup()
     {
         SensorDHT11::Instance()->begin();
+    }
+
+    const char* HumiditySensor::getName()
+    {
+        return "humidity";
     }
 
     Measurement HumiditySensor::read()
