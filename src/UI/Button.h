@@ -1,8 +1,8 @@
 #ifndef DOUGH_BUTTON_H
 #define DOUGH_BUTTON_H
 
-#define BUTTON_DEBOUNCE_DELAY 50
-#define BUTTON_LONGPRESS_DELAY 1000
+#define BUTTON_DEBOUNCE_DELAY 10
+#define BUTTON_LONGPRESS_DELAY 500
 
 #include <Arduino.h>
 
@@ -41,6 +41,7 @@ namespace Dough
 
     private:
         int _pin;
+        ButtonISR _isr;
         ButtonISR _pressHandler = nullptr;
         ButtonISR _shortPressHandler = nullptr;
         ButtonISR _longPressHandler = nullptr;

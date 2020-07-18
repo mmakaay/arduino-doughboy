@@ -16,15 +16,12 @@ namespace Dough
     //
     //   // Construct the button instance.
     //   Button myButton(MYBUTTON_PIN, myButtonISR);
-    Button::Button(int pin, ButtonISR isr)
-    {
-        _pin = pin;
-        attachInterrupt(digitalPinToInterrupt(_pin), isr, CHANGE);
-    }
+    Button::Button(int pin, ButtonISR isr) : _pin(pin), _isr(isr) {}
 
     void Button::setup()
     {
         pinMode(_pin, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(_pin), _isr, CHANGE);
     }
 
     // Assign an event handler for short and long button presses.
@@ -95,7 +92,7 @@ namespace Dough
         bool buttonIsUp = !buttonIsDown;
 
         // When the button state has changed since the last time, then
-        // start the debounce timer.
+        // restart the debounce timer.
         if (buttonIsDown != _debounceState)
         {
             _debounceTimer = millis();
@@ -103,14 +100,6 @@ namespace Dough
         }
 
         unsigned long interval = (millis() - _debounceTimer);
-
-        // Only when the last state change has been stable for longer than the
-        // configured debounce delay, then we accept the current state as
-        // a stabilized button state.
-        if (interval < BUTTON_DEBOUNCE_DELAY)
-        {
-            return;
-        }
 
         // Handle button state changes.
         if (_state == READY_FOR_NEXT_PRESS && buttonIsUp)
@@ -125,7 +114,7 @@ namespace Dough
         {
             _state = DOWN_LONG;
         }
-        else if (_state == DOWN && buttonIsUp)
+        else if (_state == DOWN && buttonIsUp && interval > BUTTON_DEBOUNCE_DELAY)
         {
             _state = UP_AFTER_SHORT;
         }
