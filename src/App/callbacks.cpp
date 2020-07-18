@@ -37,16 +37,6 @@ void setupButtonInterruptCallback()
     Dough::App::Instance()->ui.setupButton.handleButtonState();
 }
 
-void sensorOnMeasureCallback()
-{
-    Dough::App::Instance()->ui.notifySensorActivity();
-}
-
-void sensorOnPublishCallback()
-{
-    Dough::App::Instance()->ui.notifyNetworkActivity();
-}
-
 // This callback is called when the TC4 timer from the UI code hits an overflow
 // interrupt. It is defined outside the Dough namespace, because TC4_Handler is
 // a hard-coded root namespace function name.

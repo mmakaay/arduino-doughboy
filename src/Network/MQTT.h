@@ -31,8 +31,8 @@ namespace Dough
         void publish(const char *key, Measurement measurement);
 
     private:
-        WiFi *_wifi;
         Logger _logger;
+        WiFi *_wifi;
         MQTTClient _mqttClient;
         MQTTConnectHandler _onConnect;
         MQTTClientCallbackSimple _onMessage;

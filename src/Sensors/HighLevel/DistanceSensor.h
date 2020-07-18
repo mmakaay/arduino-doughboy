@@ -1,7 +1,7 @@
 #ifndef DOUGH_DISTANCE_SENSOR_H
 #define DOUGH_DISTANCE_SENSOR_H
 
-#include "Sensors/SensorBase.h"
+#include "Sensors/HighLevel/SensorBase.h"
 #include "Sensors/LowLevel/SensorHCSR04.h"
 #include "UI/Logger.h"
 #include "Data/Measurement.h"
@@ -13,7 +13,7 @@ namespace Dough
     class DistanceSensor : public SensorBase
     {
     public:
-        static DistanceSensor *Instance();
+        DistanceSensor();
         void setTemperature(int temperature);
         void setHumidity(int humidity);
         virtual void setup();
@@ -21,7 +21,6 @@ namespace Dough
         virtual unsigned int getPrecision();
 
     private:
-        DistanceSensor();
         Logger _logger;
         SensorHCSR04 *_hcsr04;
     };

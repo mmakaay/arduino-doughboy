@@ -2,15 +2,8 @@
 
 namespace Dough
 {
-    DistanceSensor *DistanceSensor::Instance()
-    {
-        static DistanceSensor *_instance = new DistanceSensor();
-        return _instance;
-    }
-
     DistanceSensor::DistanceSensor() : _logger("DISTANCE")
     {
-        _logger.log("s", "INIT distance sensor object");// TODO
         _hcsr04 = new SensorHCSR04(HCSR04_TRIG_PIN, HCSR04_ECHO_PIN);
     }
 

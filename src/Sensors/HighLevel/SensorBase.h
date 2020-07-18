@@ -5,7 +5,7 @@
 
 namespace Dough
 {
-    // This interface is implemented by all sensors.
+    // This interface is implemented by all high level sensors.
     class SensorBase
     {
     public:

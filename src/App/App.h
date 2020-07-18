@@ -5,10 +5,11 @@
 #include "UI/UI.h"
 #include "App/Configuration.h"
 #include "App/callbacks.h"
-#include "Data/SensorController.h"
-#include "Sensors/TemperatureSensor.h"
-#include "Sensors/HumiditySensor.h"
-#include "Sensors/DistanceSensor.h"
+#include "Sensors/SensorController.h"
+#include "App/SensorControllerPlugin.h"
+#include "Sensors/HighLevel/TemperatureSensor.h"
+#include "Sensors/HighLevel/HumiditySensor.h"
+#include "Sensors/HighLevel/DistanceSensor.h"
 #include "config.h"
 
 namespace Dough
@@ -21,9 +22,13 @@ namespace Dough
         UI ui;
         WiFi wifi;
         MQTT mqtt;
-        SensorController temperatureSensor;
-        SensorController humiditySensor;
+        SensorControllerPlugin sensorControllerPlugin;
+        DistanceSensor distanceSensorX;
         SensorController distanceSensor;
+        TemperatureSensor temperatureSensorX;
+        SensorController temperatureSensor;
+        HumiditySensor humiditySensorX;
+        SensorController humiditySensor;
 
         void setup();
         void measure();

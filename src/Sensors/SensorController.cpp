@@ -1,31 +1,28 @@
-#include "Data/SensorController.h"
+#include "Sensors/SensorController.h"
 #include "UI/UI.h"
 
 namespace Dough
 {
     SensorController::SensorController(
+        SensorControllerPluginBase *plugin,
         MQTT *mqtt,
         const char *mqttKey,
-        SensorBase *sensor,
+        SensorBase &sensor,
         unsigned int storageSize,
         unsigned int minimumMeasureTime,
-        SensorControllerCallback onMeasure,
-        unsigned int minimumPublishTime,
-        SensorControllerCallback onPublish)
+        unsigned int minimumPublishTime) : _plugin(plugin),
+                                           _mqtt(mqtt),
+                                           _sensor(sensor)
     {
-        _mqtt = mqtt;
         _mqttKey = mqttKey;
-        _sensor = sensor;
         _storageSize = storageSize;
         _minimumMeasureTime = minimumMeasureTime;
-        _onMeasure = onMeasure;
         _minimumPublishTime = minimumPublishTime;
-        _onPublish = onPublish;
     }
 
     void SensorController::setup()
     {
-        _sensor->setup();
+        _sensor.setup();
 
         // Format the key to use for publishing the average (i.e. "<mqttKey>/average").
         auto lenAverageKey = strlen(_mqttKey) + 9; // +9 for the "/average\0" suffix
@@ -45,12 +42,16 @@ namespace Dough
     {
         if (_mustMeasure())
         {
-            _onMeasure();
+            _plugin->beforeMeasure(this);
             _measure();
+            _plugin->afterMeasure(this);
         }
         if (_mustPublish())
         {
-            _onPublish();
+            _plugin->beforePublish(this);
+            Serial.println("CALLING doPublish() from plugin"); // DEBUG XXX
+            _plugin->doPublish(this);
+            _plugin->afterPublish(this);
             _publish();
         }
     }
@@ -73,8 +74,8 @@ namespace Dough
     void SensorController::_measure()
     {
         _lastMeasuredAt = millis();
-        
-        _store(_sensor->read());
+
+        _store(_sensor.read());
     }
 
     bool SensorController::_mustPublish()
@@ -102,7 +103,7 @@ namespace Dough
             return _lastPublishedAt == 0 || delta >= (_minimumPublishTime * 1000);
         }
 
-        auto precision = _sensor->getPrecision();
+        auto precision = _sensor.getPrecision();
 
         // When there is a significant change in the sensor value, then publish.
         if (abs(_lastPublished.value - lastMeasurement.value) >= precision)
@@ -197,4 +198,4 @@ namespace Dough
             _storage[i]->clear();
         }
     }
-}
+} // namespace Dough

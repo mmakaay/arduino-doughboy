@@ -2,22 +2,12 @@
 
 namespace Dough
 {
-    TemperatureSensor *TemperatureSensor::Instance()
-    {
-        static TemperatureSensor *_instance = new TemperatureSensor();
-        return _instance;
-    }
-
     TemperatureSensor::TemperatureSensor() : _logger("TEMPERATURE") {}
 
     void TemperatureSensor::setup()
     {
         SensorDHT11::Instance()->begin();
     }
-
-    // ----------------------------------------------------------------------
-    // loop
-    // ----------------------------------------------------------------------
 
     Measurement TemperatureSensor::read()
     {
@@ -30,7 +20,6 @@ namespace Dough
         else
         {
             _logger.log("sis", "Temperature = ", int(t), "°C");
-            DistanceSensor::Instance()->setTemperature(int(t));
             return Measurement::Value(int(t));
         }
     }

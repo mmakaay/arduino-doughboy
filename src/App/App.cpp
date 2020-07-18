@@ -12,21 +12,25 @@ namespace Dough
                  ui(onoffButtonInterruptCallback, setupButtonInterruptCallback),
                  wifi(),
                  mqtt(&wifi, mqttOnConnectCallback, mqttOnMessageCallback),
-                 temperatureSensor(
-                     &mqtt, "temperature", TemperatureSensor::Instance(),
-                     TEMPERATURE_AVERAGE_STORAGE,
-                     TEMPERATURE_MEASURE_INTERVAL, sensorOnMeasureCallback,
-                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
-                 humiditySensor(
-                     &mqtt, "humidity", HumiditySensor::Instance(),
-                     HUMIDITY_AVERAGE_STORAGE,
-                     HUMIDITY_MEASURE_INTERVAL, sensorOnMeasureCallback,
-                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
+                 sensorControllerPlugin(&mqtt, &ui),
                  distanceSensor(
-                     &mqtt, "distance", DistanceSensor::Instance(),
+                     &sensorControllerPlugin,
+                     &mqtt, "distance", distanceSensorX,
                      DISTANCE_AVERAGE_STORAGE,
-                     DISTANCE_MEASURE_INTERVAL, sensorOnMeasureCallback,
-                     MINIMUM_PUBLISH_INTERVAL, sensorOnPublishCallback),
+                     DISTANCE_MEASURE_INTERVAL,
+                     MINIMUM_PUBLISH_INTERVAL),
+                 temperatureSensor(
+                     &sensorControllerPlugin,
+                     &mqtt, "temperature", temperatureSensorX,
+                     TEMPERATURE_AVERAGE_STORAGE,
+                     TEMPERATURE_MEASURE_INTERVAL,
+                     MINIMUM_PUBLISH_INTERVAL),
+                 humiditySensor(
+                     &sensorControllerPlugin,
+                     &mqtt, "humidity", humiditySensorX,
+                     HUMIDITY_AVERAGE_STORAGE,
+                     HUMIDITY_MEASURE_INTERVAL,
+                     MINIMUM_PUBLISH_INTERVAL),
                  _logger("APP") {}
 
     void App::setup()
@@ -41,17 +45,19 @@ namespace Dough
 
     void App::measure()
     {
-        if (config.isOk())
+        if (!config.isOk())
         {
-            // Get measurements from the sensors. Suspend the user interface
-            // interrupts in the meanwhile, to not disturb the timing-sensitive
-            // sensor readings.
-            ui.suspend();
-            temperatureSensor.loop();
-            humiditySensor.loop();
-            distanceSensor.loop();
-            ui.resume();
+            return;
         }
+
+        // Get measurements from the sensors. Suspend the user interface
+        // interrupts in the meanwhile, to not disturb the timing-sensitive
+        // sensor readings.
+        ui.suspend();
+        temperatureSensor.loop();
+        humiditySensor.loop();
+        distanceSensor.loop();
+        ui.resume();
     }
 
     void App::clearHistory()

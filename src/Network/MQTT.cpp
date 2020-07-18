@@ -5,12 +5,10 @@ namespace Dough
     MQTT::MQTT(
         WiFi *wifi,
         MQTTConnectHandler onConnect,
-        MQTTMessageHandler onMessage) : _logger("MQTT")
-    {
-        _wifi = wifi;
-        _onConnect = onConnect;
-        _onMessage = onMessage;
-    }
+        MQTTMessageHandler onMessage) : _logger("MQTT"),
+                                        _wifi(wifi),
+                                        _onConnect(onConnect),
+                                        _onMessage(onMessage) {}
 
     void MQTT::setup()
     {
@@ -42,12 +40,12 @@ namespace Dough
         }
         _logger.log("s", "Connection to broker successful");
 
+        // Incoming messages will be passed on to the _onMessage() function.
         _mqttClient.onMessage(_onMessage);
 
-        if (_onConnect != nullptr)
-        {
-            _onConnect(this);
-        }
+        // Call the _onConnect() function to notify the system that the connection
+        // to the MQTT broker was setup successfully.
+        _onConnect(this);
 
         return true;
     }
@@ -93,4 +91,4 @@ namespace Dough
             publish(key, "null");
         }
     }
-}
+} // namespace Dough

@@ -2,12 +2,6 @@
 
 namespace Dough
 {
-    HumiditySensor *HumiditySensor::Instance()
-    {
-        static HumiditySensor *_instance = new HumiditySensor();
-        return _instance;
-    }
-
     HumiditySensor::HumiditySensor() : _logger("HUMIDITY") {}
 
     void HumiditySensor::setup()
@@ -26,7 +20,6 @@ namespace Dough
         else
         {
             _logger.log("sis", "Humidity = ", int(t), "%");
-            DistanceSensor::Instance()->setHumidity(int(t));
             return Measurement::Value(int(t));
         }
     }
@@ -34,5 +27,5 @@ namespace Dough
     unsigned int HumiditySensor::getPrecision()
     {
         return 2; // prevent flapping when transitioning from value A to value B
-    }    
-}
+    }
+} // namespace Dough

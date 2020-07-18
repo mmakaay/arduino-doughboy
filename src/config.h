@@ -1,13 +1,6 @@
 // The speed to use for the serial terminal logging.
 #define LOG_BAUDRATE 9600
 
-// Define this one to wait for USB serial to come up.
-// This can be useful during development, when you want all
-// serial messages to appear in the serial monitor.
-// Without this, some of the initial serial messages might
-// be missing from the output.
-//#define LOG_WAIT_SERIAL
-
 // The digital pins to which the push buttons are connected.
 #define ONOFF_BUTTON_PIN 2
 #define SETUP_BUTTON_PIN 3

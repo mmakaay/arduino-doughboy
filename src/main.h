@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 #include "App/App.h"
-#include "Sensors/TemperatureSensor.h"
-#include "Sensors/HumiditySensor.h"
-#include "Sensors/DistanceSensor.h"
+#include "Sensors/HighLevel/TemperatureSensor.h"
+#include "Sensors/HighLevel/HumiditySensor.h"
+#include "Sensors/HighLevel/DistanceSensor.h"
 #include "Network/WiFi.h"
 #include "Network/MQTT.h"
 #include "UI/Button.h"

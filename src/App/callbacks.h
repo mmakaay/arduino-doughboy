@@ -4,6 +4,7 @@
 #include "Network/MQTT.h"
 #include "UI/Logger.h"
 #include "App/App.h"
+#include "Sensors/SensorController.h"
 
 // This header file defines various callback functions that
 // live in the global namespace. All callbacks are bundled here
@@ -16,9 +17,5 @@ void mqttOnMessageCallback(String &topic, String &payload);
 // Callbacks from the Dough::UI module.
 void onoffButtonInterruptCallback();
 void setupButtonInterruptCallback();
-
-// Callbacks from the Dough::SensorController module.
-void sensorOnMeasureCallback();
-void sensorOnPublishCallback();
 
 #endif
