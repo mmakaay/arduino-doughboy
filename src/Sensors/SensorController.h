@@ -11,7 +11,7 @@ namespace Dough
     // This class is used to store measurements for a sensor and to keep
     // track of running totals for handling average computations.
     // It also provides functionality to decide when to read a measurement
-    // from a sensor and when to publish measurements  (after significant
+    // from a sensor and when to publish measurements (after significant
     // changes occur or when the last publish was too long ago).
     class SensorController;
 

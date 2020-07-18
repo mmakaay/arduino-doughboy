@@ -112,6 +112,13 @@ namespace Dough
         _led3.loop();
     }
 
+    void UI::onStateChange(AppState oldState, AppState newState)
+    {
+        Serial.print(oldState); // TODO
+        Serial.print(" to ");
+        Serial.println(newState); // TODO
+    }
+
     void UI::notifyConnectingToWifi()
     {
         _led1.blink()->slow();

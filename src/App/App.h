@@ -2,6 +2,7 @@
 #define DOUGH_APP_H
 
 #include <Arduino.h>
+#include "App/AppStateController.h"
 #include "UI/UI.h"
 #include "App/Configuration.h"
 #include "App/callbacks.h"
@@ -20,6 +21,7 @@ namespace Dough
         static App *Instance();
         Configuration config;
         UI ui;
+        AppStateController state;
         WiFi wifi;
         MQTT mqtt;
         SensorControllerPlugin sensorControllerPlugin;
@@ -28,12 +30,13 @@ namespace Dough
         SensorController humiditySensor;
 
         void setup();
-        void measure();
+        void loop();
         void clearHistory();
                 
     private:
         App();
         Logger _logger;
+        bool _setupNetworkConnection();
     };
 }
 
