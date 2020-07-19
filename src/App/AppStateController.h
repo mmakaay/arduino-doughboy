@@ -53,8 +53,8 @@ namespace Dough
         void startConfiguration();
         void startMeasurements();
         void startCalibration();
-        void pauseMeasurements();
-        void resumeMeasurements();
+        void pauseDevice();
+        void resumeDevice();
         AppState get();
 
     private:

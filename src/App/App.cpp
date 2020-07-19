@@ -15,13 +15,14 @@ namespace Dough
                  statePlugin(&ui, &mqtt),
                  state(&statePlugin),
                  sensorControllerPlugin(&mqtt, &ui),
-                 distanceSensor(
-                     new DistanceSensor(), &sensorControllerPlugin,
+                 distanceSensor(),
+                 distanceController(
+                     &distanceSensor, &sensorControllerPlugin,
                      DISTANCE_AVERAGE_STORAGE, DISTANCE_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
-                 temperatureSensor(
+                 temperatureController(
                      new TemperatureSensor(), &sensorControllerPlugin,
                      TEMPERATURE_AVERAGE_STORAGE, TEMPERATURE_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
-                 humiditySensor(
+                 humidityController(
                      new HumiditySensor(), &sensorControllerPlugin,
                      HUMIDITY_AVERAGE_STORAGE, HUMIDITY_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
                  _logger("APP")
@@ -37,9 +38,9 @@ namespace Dough
         ui.setup();
         wifi.setup();
         mqtt.setup();
-        temperatureSensor.setup();
-        humiditySensor.setup();
-        distanceSensor.setup();
+        temperatureController.setup();
+        humidityController.setup();
+        distanceController.setup();
     }
 
     void App::loop()
@@ -71,9 +72,11 @@ namespace Dough
         case MEASURING:
             if (config.isOk())
             {
-                temperatureSensor.loop();
-                humiditySensor.loop();
-                distanceSensor.loop();
+                if (temperatureController.loop())
+                    distanceSensor.setTemperature(temperatureController.getLast().value);
+                if (humidityController.loop())
+                    distanceSensor.setHumidity(humidityController.getLast().value);
+                distanceController.loop();
             }
             else
             {
@@ -81,14 +84,18 @@ namespace Dough
             }
             break;
         case CALIBRATING:
+            temperatureController.loop();
+            humidityController.loop();
+            distanceController.loop();
+
             delay(2000);
-            state.pauseMeasurements();
+            state.pauseDevice();
             state.startMeasurements();
             break;
         case PAUSED:
-            temperatureSensor.clearHistory();
-            humiditySensor.clearHistory();
-            distanceSensor.clearHistory();
+            temperatureController.clearHistory();
+            humidityController.clearHistory();
+            distanceController.clearHistory();
             break;
         default:
             // NOOP

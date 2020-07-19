@@ -8,20 +8,20 @@ namespace Dough
         SensorControllerPluginBase *plugin,
         unsigned int storageSize,
         unsigned int minimumMeasureTime,
-        unsigned int minimumPublishTime) : _sensor(sensor),
+        unsigned int minimumPublishTime) : sensor(sensor),
                                            _plugin(plugin),
                                            _storageSize(storageSize),
                                            _minimumMeasureTime(minimumMeasureTime),
                                            _minimumPublishTime(minimumPublishTime) {}
 
-    const char* SensorController::getSensorName()
+    const char *SensorController::getSensorName()
     {
-        return _sensor->getName();
+        return sensor->getName();
     }
 
     void SensorController::setup()
     {
-        _sensor->setup();
+        sensor->setup();
 
         // Initialize the storage for holding measurements. This storage is used
         // as a circular buffer, and it helps in computing an over time average
@@ -35,25 +35,30 @@ namespace Dough
         clearHistory();
     }
 
-    void SensorController::loop()
+    bool SensorController::loop()
     {
         if (_mustMeasure())
         {
             _plugin->beforeMeasure(this);
-            _measure();
+            _lastMeasuredAt = millis();
+            _store(sensor->read());
             _plugin->afterMeasure(this);
         }
+        
+        auto last = getLast();
+
         if (_mustPublish())
         {
             _plugin->beforePublish(this);
-            auto average = _getAverage();
-            auto last = _getLast();
+            auto average = getAverage();
             _lastPublishedAt = millis();
             average.copyTo(&_lastPublishedAverage);
             last.copyTo(&_lastPublished);
             _plugin->doPublish(this, last, average);
             _plugin->afterPublish(this);
         }
+
+        return last.ok;
     }
 
     bool SensorController::_mustMeasure()
@@ -71,16 +76,9 @@ namespace Dough
         return delta >= (_minimumMeasureTime * 1000);
     }
 
-    void SensorController::_measure()
-    {
-        _lastMeasuredAt = millis();
-
-        _store(_sensor->read());
-    }
-
     bool SensorController::_mustPublish()
     {
-        Measurement lastMeasurement = _getLast();
+        Measurement lastMeasurement = getLast();
 
         // When the measurement failed, then there's no need to publish it.
         if (lastMeasurement.ok == false)
@@ -103,7 +101,7 @@ namespace Dough
             return _lastPublishedAt == 0 || delta >= (_minimumPublishTime * 1000);
         }
 
-        auto precision = _sensor->getPrecision();
+        auto precision = sensor->getPrecision();
 
         // When there is a significant change in the sensor value, then publish.
         if (abs(_lastPublished.value - lastMeasurement.value) >= precision)
@@ -111,7 +109,7 @@ namespace Dough
             return true;
         }
 
-        auto average = _getAverage();
+        auto average = getAverage();
 
         // When there is a significant change in the average value, then publish.
         if (average.ok && abs(_lastPublishedAverage.value - average.value) >= precision)
@@ -164,12 +162,12 @@ namespace Dough
         return _index;
     }
 
-    Measurement SensorController::_getLast()
+    Measurement SensorController::getLast()
     {
         return *_storage[_index];
     }
 
-    Measurement SensorController::_getAverage()
+    Measurement SensorController::getAverage()
     {
         return _averageCount > 0
                    ? Measurement::Value(round(_averageSum / _averageCount))

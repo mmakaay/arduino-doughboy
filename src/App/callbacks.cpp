@@ -42,11 +42,11 @@ void handleOnoffButtonPress()
     auto app = Dough::App::Instance();
     if (app->state.get() == Dough::MEASURING)
     {
-        app->state.pauseMeasurements();
+        app->state.pauseDevice();
     }
     else if (app->state.get() == Dough::PAUSED)
     {
-        app->state.resumeMeasurements();
+        app->state.resumeDevice();
     }
 }
 

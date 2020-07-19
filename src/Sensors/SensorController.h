@@ -54,16 +54,37 @@ namespace Dough
             unsigned int storageSize,
             unsigned int minimumMeasureTime,
             unsigned int minimumPublishTime);
-        const char *getSensorName();
+        SensorBase *sensor;
         void setup();
-        void loop();
+
+        // Return the name for the contained sensor.
+        const char *getSensorName();
+
+        // Read the sensor and publish the results when needed.
+        // This method returns true when the last read value was an ok measurement.
+        // This means that after this method returns true, getLast() will return
+        // an ok Dough::Measurement.
+        bool loop();
+        
+        // Read a measurement from the sensor.
+        Measurement readSensor();
+
+        // Returns the last measurement that was done for the sensor.
+        // This might be a failed measurement, in which case the ok field
+        // of the result will be set to false.
+        Measurement getLast();
+
+        // Returns the running average value for the sensor readings so far.
+        // When no successful measurements were done at all, then the ok
+        // field of the result will be set to false.
+        Measurement getAverage();
+
+        // Clear the collected data for the running average, letting the
+        // average computation start from a clean slate.
         void clearHistory();
 
     private:
-        SensorBase *_sensor;
         SensorControllerPluginBase *_plugin;
-        Measurement _getLast();
-        Measurement _getAverage();
 
         // Members related to the measurement storage.
         Measurement **_storage;
@@ -76,7 +97,6 @@ namespace Dough
 
         // Members used for controlling measurements.
         bool _mustMeasure();
-        void _measure();
         unsigned int _minimumMeasureTime;
         unsigned long _lastMeasuredAt = 0;
 

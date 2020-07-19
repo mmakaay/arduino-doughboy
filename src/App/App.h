@@ -27,9 +27,11 @@ namespace Dough
         AppStateControllerPlugin statePlugin;
         AppStateController state;
         SensorControllerPlugin sensorControllerPlugin;
-        SensorController distanceSensor;
-        SensorController temperatureSensor;
-        SensorController humiditySensor;
+        DistanceSensor distanceSensor;
+        SensorController distanceController;
+        SensorController temperatureController;
+        SensorController humidityController;
+        void propagateMeasurement(const char* sensorName, int lastValue);
 
         void setup();
         void loop();

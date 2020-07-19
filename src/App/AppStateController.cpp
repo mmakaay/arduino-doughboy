@@ -91,13 +91,13 @@ namespace Dough
         _updateState();
     }
 
-    void AppStateController::pauseMeasurements()
+    void AppStateController::pauseDevice()
     {
         _paused = true;
         _updateState();
     }
 
-    void AppStateController::resumeMeasurements()
+    void AppStateController::resumeDevice()
     {
         _paused = false;
         _updateState();
