@@ -17,5 +17,7 @@ void mqttOnMessageCallback(String &topic, String &payload);
 // Callbacks from the Dough::UI module.
 void onoffButtonInterruptCallback();
 void setupButtonInterruptCallback();
+void handleOnoffButtonPress();
+void handleSetupButtonPress();
 
 #endif

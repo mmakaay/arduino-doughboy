@@ -10,9 +10,10 @@ namespace Dough
 
     App::App() : config(),
                  ui(onoffButtonInterruptCallback, setupButtonInterruptCallback),
-                 state(&ui),
                  wifi(),
                  mqtt(&wifi, mqttOnConnectCallback, mqttOnMessageCallback),
+                 statePlugin(&ui, &mqtt),
+                 state(&statePlugin),
                  sensorControllerPlugin(&mqtt, &ui),
                  distanceSensor(
                      new DistanceSensor(), &sensorControllerPlugin,
@@ -23,10 +24,16 @@ namespace Dough
                  humiditySensor(
                      new HumiditySensor(), &sensorControllerPlugin,
                      HUMIDITY_AVERAGE_STORAGE, HUMIDITY_MEASURE_INTERVAL, MINIMUM_PUBLISH_INTERVAL),
-                 _logger("APP") {}
+                 _logger("APP")
+    {
+        ui.onoffButton.onPress(handleOnoffButtonPress);
+        ui.setupButton.onPress(handleSetupButtonPress);
+    }
 
     void App::setup()
     {
+        Dough::Logger::setup();
+        state.setup();
         ui.setup();
         wifi.setup();
         mqtt.setup();
@@ -37,93 +44,55 @@ namespace Dough
 
     void App::loop()
     {
-        if (_setupNetworkConnection())
-        {
-            ui.processButtonEvents();
-            mqtt.procesIncomingsMessages();
-
-            switch (state.get())
-            {
-            case CONFIGURING:
-                if (config.isOk())
-                {
-                    state.startMeasurements();
-                }
-                break;
-            case MEASURING:
-                if (config.isOk())
-                {
-                    temperatureSensor.loop();
-                    humiditySensor.loop();
-                    distanceSensor.loop();
-                }
-                else
-                {
-                    state.startConfiguration();
-                }
-                break;
-            }
-        }
-    }
-
-    // Check if the device is connected to the WiFi network and the MQTT broker.
-    // If not, then try to setup the connection.
-    // Returns true if the connection was established, false otherwise.
-    bool App::_setupNetworkConnection()
-    {
-        static bool connected = false;
-
         if (!wifi.isConnected())
         {
             state.setWiFiConnected(false);
-            if (connected)
-            {
-                _logger.log("s", "ERROR - Connection to WiFi network lost! Reconnecting ...");
-            }
-            else
-            {
-                _logger.log("s", "Connecting to the WiFi network ...");
-            }
-            connected = false;
-            ui.notifyConnectingToWifi();
             state.setWiFiConnected(wifi.connect());
+            return;
         }
-        if (wifi.isConnected() && !mqtt.isConnected())
+        if (!mqtt.isConnected())
         {
-            state.setWiFiConnected(true);
             state.setMQTTConnected(false);
-            if (connected)
+            state.setMQTTConnected(mqtt.connect());
+            return;
+        }
+
+        ui.processButtonEvents();
+        mqtt.procesIncomingsMessages();
+
+        switch (state.get())
+        {
+        case CONFIGURING:
+            if (config.isOk())
             {
-                _logger.log("s", "ERROR - Connection to the MQTT broker lost! Reconnecting ...");
+                state.startMeasurements();
+            }
+            break;
+        case MEASURING:
+            if (config.isOk())
+            {
+                temperatureSensor.loop();
+                humiditySensor.loop();
+                distanceSensor.loop();
             }
             else
             {
-                _logger.log("s", "Connecting to the MQTT broker ...");
+                state.startConfiguration();
             }
-            connected = false;
-            ui.notifyConnectingToMQTT();
-            state.setMQTTConnected(mqtt.connect());
+            break;
+        case CALIBRATING:
+            delay(2000);
+            state.pauseMeasurements();
+            state.startMeasurements();
+            break;
+        case PAUSED:
+            temperatureSensor.clearHistory();
+            humiditySensor.clearHistory();
+            distanceSensor.clearHistory();
+            break;
+        default:
+            // NOOP
+            break;
         }
-        if (wifi.isConnected() && mqtt.isConnected())
-        {
-            state.setWiFiConnected(true);
-            state.setMQTTConnected(true);
-            if (!connected)
-            {
-                _logger.log("s", "Connection to MQTT broker established");
-                ui.notifyConnected();
-                ui.clearButtonEvents();
-                connected = true;
-            }
-        }
-
-        return connected;
-    }
-
-    void App::clearHistory()
-    {
-        temperatureSensor.clearHistory();
-        humiditySensor.clearHistory();
-        distanceSensor.clearHistory();
     }
 } // namespace Dough

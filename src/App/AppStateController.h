@@ -13,6 +13,7 @@ namespace Dough
         CONNECTING_WIFI,
         MQTT_CONNECTION_LOST,
         CONNECTING_MQTT,
+        CONNECTION_ESTABLISHED,
         CONFIGURING,
         MEASURING,
         CALIBRATING,
@@ -46,6 +47,7 @@ namespace Dough
     {
     public:
         AppStateController(AppStateControllerPluginBase *plugin);
+        void setup();
         void setWiFiConnected(bool connected);
         void setMQTTConnected(bool connected);
         void startConfiguration();

@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <stdarg.h>
-#include "App/AppStateController.h"
 #include "UI/Button.h"
 #include "UI/LED.h"
 #include "config.h"
@@ -12,7 +11,7 @@ namespace Dough
 {
     // This class groups all user interface functionality: serial logging,
     // LEDs and buttons.
-    class UI : public AppStateControllerPluginBase
+    class UI
     {
     public:
         UI(ButtonISR onoffButtonISR, ButtonISR setupButtonISR);
@@ -24,7 +23,6 @@ namespace Dough
         void updateLEDs();
         void resume();
         void suspend();
-        virtual void onStateChange(AppState oldState, AppState newState);
         void notifyConnectingToWifi();
         void notifyConnectingToMQTT();
         void notifyConnected();

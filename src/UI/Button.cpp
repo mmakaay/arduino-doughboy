@@ -106,7 +106,7 @@ namespace Dough
         {
             _state = UP;
         }
-        else if (_state == UP && buttonIsDown)
+        else if (_state == UP && buttonIsDown && interval)
         {
             _state = DOWN;
         }

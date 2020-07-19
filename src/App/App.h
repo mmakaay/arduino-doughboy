@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "App/AppStateController.h"
+#include "App/AppStateControllerPlugin.h"
 #include "UI/UI.h"
 #include "App/Configuration.h"
 #include "App/callbacks.h"
@@ -21,9 +22,10 @@ namespace Dough
         static App *Instance();
         Configuration config;
         UI ui;
-        AppStateController state;
         WiFi wifi;
         MQTT mqtt;
+        AppStateControllerPlugin statePlugin;
+        AppStateController state;
         SensorControllerPlugin sensorControllerPlugin;
         SensorController distanceSensor;
         SensorController temperatureSensor;
@@ -31,12 +33,10 @@ namespace Dough
 
         void setup();
         void loop();
-        void clearHistory();
                 
     private:
         App();
         Logger _logger;
-        bool _setupNetworkConnection();
     };
 }
 

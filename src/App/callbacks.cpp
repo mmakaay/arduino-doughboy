@@ -37,6 +37,24 @@ void setupButtonInterruptCallback()
     Dough::App::Instance()->ui.setupButton.handleButtonState();
 }
 
+void handleOnoffButtonPress()
+{
+    auto app = Dough::App::Instance();
+    if (app->state.get() == Dough::MEASURING)
+    {
+        app->state.pauseMeasurements();
+    }
+    else if (app->state.get() == Dough::PAUSED)
+    {
+        app->state.resumeMeasurements();
+    }
+}
+
+void handleSetupButtonPress()
+{
+    Dough::App::Instance()->state.startCalibration();
+}
+
 // This callback is called when the TC4 timer from the UI code hits an overflow
 // interrupt. It is defined outside the Dough namespace, because TC4_Handler is
 // a hard-coded, root namespace function name.

@@ -5,6 +5,12 @@ namespace Dough
     AppStateController::AppStateController(AppStateControllerPluginBase *plugin) : _logger("STATE"),
                                                                                    _plugin(plugin) {}
 
+    void AppStateController::setup()
+    {
+        // Trigger a state change event, so the plugin can act upon it.
+        _plugin->onStateChange(get(), INITIALIZING);
+    }
+
     AppState AppStateController::get()
     {
         if (_wifiConnected != CONNECTED)
@@ -50,6 +56,14 @@ namespace Dough
     {
         if (connected)
         {
+            // Trigger a connection established state, so the plugin can act
+            // upon this specific event. At the end of this method, the status update
+            // call will push the system to the next state.
+            if (_mqttConnected != CONNECTED)
+            {
+                _appState = CONNECTION_ESTABLISHED;
+                _plugin->onStateChange(get(), _appState);
+            }
             _mqttConnected = CONNECTED;
         }
         else

@@ -1,7 +1,7 @@
 #ifndef DOUGH_BUTTON_H
 #define DOUGH_BUTTON_H
 
-#define BUTTON_DEBOUNCE_DELAY 10
+#define BUTTON_DEBOUNCE_DELAY 50
 #define BUTTON_LONGPRESS_DELAY 500
 
 #include <Arduino.h>

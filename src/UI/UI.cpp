@@ -2,14 +2,13 @@
 
 namespace Dough
 {
-    UI::UI(
-        ButtonISR onoffButtonISR,
-        ButtonISR setupButtonISR) : onoffButton(ONOFF_BUTTON_PIN, onoffButtonISR),
-                                    setupButton(SETUP_BUTTON_PIN, setupButtonISR),
-                                    _ledBuiltin(LED_BUILTIN),
-                                    _led1(LED1_PIN),
-                                    _led2(LED2_PIN),
-                                    _led3(LED3_PIN) {}
+    UI::UI(ButtonISR onoffButtonISR,
+           ButtonISR setupButtonISR) : onoffButton(ONOFF_BUTTON_PIN, onoffButtonISR),
+                                       setupButton(SETUP_BUTTON_PIN, setupButtonISR),
+                                       _ledBuiltin(LED_BUILTIN),
+                                       _led1(LED1_PIN),
+                                       _led2(LED2_PIN),
+                                       _led3(LED3_PIN) {}
 
     void UI::setup()
     {
@@ -110,13 +109,6 @@ namespace Dough
         _led1.loop();
         _led2.loop();
         _led3.loop();
-    }
-
-    void UI::onStateChange(AppState oldState, AppState newState)
-    {
-        Serial.print(oldState); // TODO
-        Serial.print(" to ");
-        Serial.println(newState); // TODO
     }
 
     void UI::notifyConnectingToWifi()
