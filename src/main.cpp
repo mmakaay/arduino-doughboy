@@ -1,4 +1,4 @@
-#include "main.h"
+#include "App/App.h"
 
 Dough::Logger logger("MAIN");
 
