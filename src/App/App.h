@@ -39,6 +39,10 @@ namespace Dough
     private:
         App();
         Logger _logger;
+        bool _setupNetworking();
+        void _doConfigure();
+        void _doMeasure();
+        void _doCalibrate();
     };
 }
 

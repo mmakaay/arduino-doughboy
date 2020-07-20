@@ -19,6 +19,11 @@ namespace Dough
         return sensor->getName();
     }
 
+    unsigned int SensorController::getPrecision()
+    {
+        return sensor->getPrecision();
+    }
+
     void SensorController::setup()
     {
         sensor->setup();
@@ -41,24 +46,24 @@ namespace Dough
         {
             _plugin->beforeMeasure(this);
             _lastMeasuredAt = millis();
-            _store(sensor->read());
+            _store(readSensor());
             _plugin->afterMeasure(this);
         }
         
-        auto last = getLast();
-
         if (_mustPublish())
         {
             _plugin->beforePublish(this);
+            auto last = getLast();
             auto average = getAverage();
             _lastPublishedAt = millis();
             average.copyTo(&_lastPublishedAverage);
             last.copyTo(&_lastPublished);
             _plugin->doPublish(this, last, average);
             _plugin->afterPublish(this);
+            return true;
         }
 
-        return last.ok;
+        return false;
     }
 
     bool SensorController::_mustMeasure()
@@ -160,6 +165,11 @@ namespace Dough
         _storage[_index]->clear();
 
         return _index;
+    }
+
+    Measurement SensorController::readSensor()
+    {
+        return sensor->read();
     }
 
     Measurement SensorController::getLast()

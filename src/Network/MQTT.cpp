@@ -65,30 +65,37 @@ namespace Dough
         _mqttClient.subscribe(topic);
     }
 
-    void MQTT::publish(const char *key, const char *payload)
+    void MQTT::publish(const char *key, const char *payload, bool retained)
     {
         char topic[200];
         snprintf(topic, sizeof(topic) / sizeof(topic[0]), "%s/%s/%s", MQTT_TOPIC_PREFIX, _mqttDeviceId, key);
         _logger.log("ssss", "Send message: ", topic, " = ", payload);
-        _mqttClient.publish(topic, payload);
-    }
-
-    void MQTT::publish(const char *key, int payload)
-    {
-        char buf[16];
-        snprintf(buf, 16, "%d", payload);
-        publish(key, buf);
-    }
-
-    void MQTT::publish(const char *key, Measurement measurement)
-    {
-        if (measurement.ok)
+        if (retained)
         {
-            publish(key, measurement.value);
+            _mqttClient.publish(topic, payload, true, 2);
         }
         else
         {
-            publish(key, "null");
+            _mqttClient.publish(topic, payload);
+        }
+    }
+
+    void MQTT::publish(const char *key, int payload, bool retained)
+    {
+        char buf[16];
+        snprintf(buf, 16, "%d", payload);
+        publish(key, buf, retained);
+    }
+
+    void MQTT::publish(const char *key, Measurement measurement, bool retained)
+    {
+        if (measurement.ok)
+        {
+            publish(key, measurement.value, retained);
+        }
+        else
+        {
+            publish(key, "null", retained);
         }
     }
 } // namespace Dough

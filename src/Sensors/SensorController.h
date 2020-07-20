@@ -60,10 +60,13 @@ namespace Dough
         // Return the name for the contained sensor.
         const char *getSensorName();
 
+        // Return the measuring precision for the contained sensor.
+        unsigned int getPrecision();
+
         // Read the sensor and publish the results when needed.
-        // This method returns true when the last read value was an ok measurement.
-        // This means that after this method returns true, getLast() will return
-        // an ok Dough::Measurement.
+        // This method returns true when the last read value was an ok measurement
+        // and a publish operation was done. This means that after this method returns
+        // true, getLast() will return an ok Dough::Measurement.
         bool loop();
         
         // Read a measurement from the sensor.

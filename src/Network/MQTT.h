@@ -26,9 +26,9 @@ namespace Dough
         bool connect();
         void subscribe(const char *key);
         void procesIncomingsMessages();
-        void publish(const char *key, const char *payload);
-        void publish(const char *key, int payload);
-        void publish(const char *key, Measurement measurement);
+        void publish(const char *key, const char *payload, bool retained = false);
+        void publish(const char *key, int payload, bool retained = false);
+        void publish(const char *key, Measurement measurement, bool retained = false);
 
     private:
         Logger _logger;

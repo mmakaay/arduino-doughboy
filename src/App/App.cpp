@@ -45,16 +45,8 @@ namespace Dough
 
     void App::loop()
     {
-        if (!wifi.isConnected())
+        if (!_setupNetworking())
         {
-            state.setWiFiConnected(false);
-            state.setWiFiConnected(wifi.connect());
-            return;
-        }
-        if (!mqtt.isConnected())
-        {
-            state.setMQTTConnected(false);
-            state.setMQTTConnected(mqtt.connect());
             return;
         }
 
@@ -64,33 +56,13 @@ namespace Dough
         switch (state.get())
         {
         case CONFIGURING:
-            if (config.isOk())
-            {
-                state.startMeasurements();
-            }
+            _doConfigure();
             break;
         case MEASURING:
-            if (config.isOk())
-            {
-                if (temperatureController.loop())
-                    distanceSensor.setTemperature(temperatureController.getLast().value);
-                if (humidityController.loop())
-                    distanceSensor.setHumidity(humidityController.getLast().value);
-                distanceController.loop();
-            }
-            else
-            {
-                state.startConfiguration();
-            }
+            _doMeasure();
             break;
         case CALIBRATING:
-            temperatureController.loop();
-            humidityController.loop();
-            distanceController.loop();
-
-            delay(2000);
-            state.pauseDevice();
-            state.startMeasurements();
+            _doCalibrate();
             break;
         case PAUSED:
             temperatureController.clearHistory();
@@ -101,5 +73,99 @@ namespace Dough
             // NOOP
             break;
         }
+    }
+
+    bool App::_setupNetworking()
+    {
+        if (!wifi.isConnected())
+        {
+            state.setWiFiConnected(false);
+            state.setWiFiConnected(wifi.connect());
+            return false;
+        }
+        if (!mqtt.isConnected())
+        {
+            state.setMQTTConnected(false);
+            state.setMQTTConnected(mqtt.connect());
+            return false;
+        }
+        return true;
+    }
+
+    void App::_doConfigure()
+    {
+        if (config.isOk())
+        {
+            state.startMeasurements();
+        }
+    }
+
+    void App::_doMeasure()
+    {
+        if (config.isOk())
+        {
+            if (temperatureController.loop())
+                distanceSensor.setTemperature(temperatureController.getLast().value);
+            if (humidityController.loop())
+                distanceSensor.setHumidity(humidityController.getLast().value);
+            if (distanceController.loop())
+                mqtt.publish("height", config.getContainerHeight() - distanceController.getLast().value);
+        }
+        else
+        {
+            state.startConfiguration();
+        }
+    }
+
+    void App::_doCalibrate()
+    {
+        int count = 0;
+        int runningTotal = 0;
+        unsigned int firstValue = 0;
+        unsigned int precision = distanceController.getPrecision();
+
+        for (;;)
+        {
+            // Read a sensor value. When this fails, then restart the calibration.
+            auto m = distanceController.readSensor();
+            if (!m.ok)
+            {
+                _logger.log("s", "Sensor reading failed, restarting calibration");
+                return;
+            }
+            _logger.log("sisis", "Calibration reading ", count, ": ", m.value, "mm");
+
+            count++;
+            runningTotal += m.value;
+
+            // If this is the first value that is read, then use that one to compare
+            // the upcoming measurements against.
+            if (count == 1)
+            {
+                firstValue = m.value;
+            }
+            // Otherwise, check if the new value is within the precision range of the
+            // distance sensor.
+            else if (abs(firstValue - m.value) > precision)
+            {
+                _logger.log("s", "New reading exceeds sensor precision, restarting calibration");
+                return;
+            }
+
+            // After reading 10 values in a row that are within the sensor precision,
+            // then we have a winner.
+            if (count == 10)
+            {
+                break;
+            }
+        }
+
+        _logger.log("sis", "Calibration completed, container height: ", firstValue, "mm");
+        unsigned int container_height = int(runningTotal / 10);
+        config.setContainerHeight(container_height);
+        mqtt.publish("container_height", container_height, true);
+
+        state.pauseDevice();
+        state.startMeasurements();
     }
 } // namespace Dough
